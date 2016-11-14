@@ -1,0 +1,7 @@
+{
+  "name": "detailView",
+  "description": "Plugin for representing the detail view of each modal.",
+  "routeExposure": "/detailView",
+  "activate": true,
+  "pluginDependencies": {}
+}

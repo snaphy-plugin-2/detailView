@@ -1,0 +1,19 @@
+{
+  "css": {
+    "detailViewCss" : "/detailView/style/detailView.css"
+  },
+  "js": {
+    "detailViewRoute": "/detailView/scripts/routes/detailView.js",
+    "detailViewController": "/detailView/scripts/controllers/detailView.js"
+  },
+  "moduleDependencies":{
+
+  },
+  "settings": "/detailView/admin-panel-setting.js",
+  "bodystructure": {
+    "asidebarHook": [],
+    "sidebarHook": [],
+    "headerHook": [],
+    "footerHook":[]
+  }
+}

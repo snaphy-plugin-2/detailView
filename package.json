@@ -1,0 +1,18 @@
+{
+  "name": "detailView",
+  "version": "1.0.0",
+  "main": "backend",
+  "description": "Plugin for representing the detail view of each modal.",
+  "author": "Robins Gupta",
+  "authorEmail": "robinskumar73@gmail.com",
+  "dependencies": {
+  },
+  "optionalDependencies": {},
+  "repository": {
+    "type": "",
+    "url": ""
+  },
+  "devDependencies": {
+
+  }
+}
