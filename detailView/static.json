@@ -1,15 +1,15 @@
 {
   "css": {
-    "detailViewCss" : "/detailView/style/detailView.css"
+    "/detailView/style/detailView.css": "detailViewCss"
   },
   "js": {
-    "detailViewRoute": "/detailView/scripts/routes/detailView.js",
-    "detailViewController": "/detailView/scripts/controllers/detailView.js"
+    "/detailView/scripts/routes/detailView.js": "detailViewRoute",
+    "/detailView/scripts/controllers/detailView.js": "detailViewController"
   },
   "moduleDependencies":{
 
   },
-  "settings": "/detailView/admin-panel-setting.js",
+  "settings": ["/detailView/admin-panel-setting.js"],
   "bodystructure": {
     "asidebarHook": [],
     "sidebarHook": [],
