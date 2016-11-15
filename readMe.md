@@ -12,8 +12,8 @@
 
 ####DOCUMENTATION
 1. **DetailViewSchema**  
- *Method: `POST`
- *Route: `/model name/detailViewSchema`
+Method: `POST`  
+Route: `/model name/detailViewSchema`  
 It has everything like `AbsoluteSchema` except it doesn't has __hasMany, hasManyThrough and hasAndBelongsToMany__ relation info.  
 ```
 {
@@ -26,9 +26,9 @@ It has everything like `AbsoluteSchema` except it doesn't has __hasMany, hasMany
 }
 ```
 2. **getModelRelationSchema**  
- *Method: `POST`
- *Route: `/model name/getModelRelationSchema`
-Fetches the relation schema of a **root model** relationship.    
+Method: `POST`  
+Route: `/model name/getModelRelationSchema`  
+Fetches the relation schema of a **root model** relationship.      
 ```
 {
   hasOne:{
