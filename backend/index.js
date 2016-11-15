@@ -133,10 +133,7 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 			schema = {};
 			schema.model = modelName;
 			schema.relations = {
-				hasMany:[],
 				belongsTo:[],
-				hasManyThrough:[],
-				hasAndBelongsToMany:[],
 				hasOne:[]
 			};
 		}
