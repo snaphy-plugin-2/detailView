@@ -11,7 +11,7 @@ angular.module($snaphy.getModuleName())
       $stateProvider
         //Provide routes in this way..
         .state('detailView', {
-          url: '/detailView',
+          url: '/detailView/:model/:id',
           templateUrl: '/detailView/views/detailView.html',
           controller: 'detailViewControl'
         });
