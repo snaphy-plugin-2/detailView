@@ -23,6 +23,7 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 		models.forEach(function(Model) {
 			//refer to https://apidocs.strongloop.com/loopback/#app-models
 			addDetailSchema(server, Model.modelName);
+			getModelRelationSchema(server, Model.modelName);
 		});
 	};
 
