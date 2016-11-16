@@ -13,11 +13,11 @@ angular.module($snaphy.getModuleName())
         //Checking if default templating feature is enabled..
         var defaultTemplate = $snaphy.loadSettings('detailView', "defaultTemplate");
         $snaphy.setDefaultTemplate(defaultTemplate);
-        var redirectOtherWise = $snaphy.loadSettings('login', 'onLoginRedirectState');
-        //Use Database.getDb(pluginName, PluginDatabaseName) to get the Database Resource.
 
         var modelName = $stateParams.model;
         var modelId = $stateParams.id;
+        //Schema of the database
+        $scope.detailSchema = $scope.detailSchema  || {};
 
 
         //-------------------------------------------------------------------------------------
@@ -25,12 +25,15 @@ angular.module($snaphy.getModuleName())
 
         var init = function(){
             if(modelName){
-               let databaseInstance = Database.loadDb(modelName);
+               var databaseInstance = Database.loadDb(modelName);
                if(databaseInstance){
                    //Start the loading bar..
                    var promise = DetailViewResource.getDetailViewSchema(databaseInstance);
                        promise.then(function(success){
-                            console.log(success);
+                            if(success){
+                                $scope.detailSchema = success;
+                                $scope.resetData();
+                            }
                        }, function(error){
                             console.error(error);
                        });
@@ -53,6 +56,19 @@ angular.module($snaphy.getModuleName())
                 //Notfiy unknown location..
 
             }
+        };
+
+        /**
+         * fetch the detailData of the current model from the server..
+         */
+        $scope.resetData = function(){
+            var databaseInstance = Database.loadDb(modelName);
+            var promise = DetailViewResource.getDataFromServer($scope.detailSchema, modelId, databaseInstance);
+            promise.then(function(success){
+                $scope.detailSchemaData = success;
+            }, function(error){
+                console.error(error);
+            });
         };
 
 
