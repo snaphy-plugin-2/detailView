@@ -2,9 +2,10 @@
 
 angular.module($snaphy.getModuleName())
 //Define your services here..
-    .factory('DetailViewResource', ['Database', '$q', function(Database, $q) {
+    .factory('DetailViewResource', ['Database', '$q', 'ImageUploadingTracker', 'SnaphyTemplate', function(Database, $q, ImageUploadingTracker, SnaphyTemplate) {
         //-------------------------------GLOBAL VARIABLE-------------------------------------------------
         var detailViewId = $snaphy.loadSettings('detailView', "detailViewId");
+
         //-------------------------------------------------------------------------------------------
 
         //Copying one object to another..
@@ -73,6 +74,15 @@ angular.module($snaphy.getModuleName())
             }
         };
 
+        //Copy data from one object to another without assignment..
+        var copy = function(targetObj, destinationObj){
+            for(var key in targetObj){
+                if(targetObj.hasOwnProperty(key)){
+                    destinationObj[key] = targetObj[key];
+                }
+            }
+        };
+
 
 
         /**
@@ -137,10 +147,119 @@ angular.module($snaphy.getModuleName())
                     stopLoadingbar(detailViewId);
                 });
             }else{
-                deferred.reject("DatabaseService is required");
+                deferred.reject("Database Service is required");
             }
             return deferred.promise;
         };
+
+
+        /**
+         * Method  for checking if the automata form is valid.
+         * @param  {[type]} form template schema object with property fields showing all the fields.
+         * @return {[type]}        [description]
+         */
+        var isValid = function(form) {
+            try {
+                //TODO Removing find alternate for  form.$dirty
+                if (form.validate()) {
+                    if ($.isEmptyObject(form.$error)) {
+                        return true;
+                    }
+                }
+            } catch (err) {
+                return false;
+            }
+
+            return false;
+        };
+
+
+
+
+
+        /**
+         * Model for saving the model structure..
+         * @param formSchema
+         * @param formData form validation and other data related to form.
+         * @param formModel  Data going to save to server.
+         */
+        var saveForm = function(formSchema, formData, formModel) {
+            var deferred = $q.defer();
+            if(ImageUploadingTracker.isUploadInProgress()){
+                SnaphyTemplate.notify({
+                    message: "Wait!! Image uploading is in progress. Please wait till the image is uploaded.",
+                    type: 'danger',
+                    icon: 'fa fa-times',
+                    align: 'left'
+                });
+                deferred.reject("Wait!! image uploading in progress.");
+            }
+            if (!isValid(formData)) {
+                SnaphyTemplate.notify({
+                    message: "Error data is Invalid.",
+                    type: 'danger',
+                    icon: 'fa fa-times',
+                    align: 'left'
+                });
+                deferred.reject("Error data is invalid.");
+            }
+            else
+            {
+                //Now save the model..
+                var baseDatabase = Database.loadDb(formSchema.model);
+                var schema = {
+                    "relation": formSchema.relations
+                };
+                var requestData = {
+                    data: formModel,
+                    schema: schema
+                };
+
+                //Start Loading bar..
+                startLoadingbar(detailViewId);
+
+                //Now save||update the database with baseDatabase method.
+                baseDatabase.save({}, requestData, function(baseModel) {
+                    SnaphyTemplate.notify({
+                        message: "Data successfully saved.",
+                        type: 'success',
+                        icon: 'fa fa-check',
+                        align: 'left'
+                    });
+
+                    deferred.resolve(baseModel);
+                    //Stop Loading bar..
+                    stopLoadingbar(detailViewId);
+
+                }, function(respHeader) {
+                    var message = "Error saving data.";
+                    if(respHeader){
+                        if(respHeader.data){
+                            if(respHeader.data.error){
+                                if(respHeader.data.error.message){
+                                    message = respHeader.data.error.message;
+                                }
+                            }
+                        }
+                    }
+
+                    //console.error(respHeader);
+                    SnaphyTemplate.notify({
+                        message: message,
+                        type: 'danger',
+                        icon: 'fa fa-times',
+                        align: 'left'
+                    });
+
+                    deferred.reject(respHeader);
+                    //Stop Loading bar..
+                    stopLoadingbar(detailViewId);
+                });
+            }
+            return deferred.promise;
+        }; //saveForm
+
+
 
 
         return {
@@ -148,7 +267,9 @@ angular.module($snaphy.getModuleName())
             getRelationSchema: getRelationSchema,
             getDataFromServer: getDataFromServer,
             startLoadingbar: startLoadingbar,
-            stopLoadingbar: stopLoadingbar
+            stopLoadingbar: stopLoadingbar,
+            saveForm: saveForm,
+            copy: copy
         };
 
     }]);

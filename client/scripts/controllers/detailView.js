@@ -17,7 +17,9 @@ angular.module($snaphy.getModuleName())
         var modelName = $stateParams.model;
         var modelId = $stateParams.id;
         //Schema of the database
-        $scope.detailSchema = $scope.detailSchema  || {};
+        $scope.detailSchema = {};
+        //Initially enable the detail view button..
+        $scope.disableDetailViewButton = false;
 
 
         //-------------------------------------------------------------------------------------
@@ -31,7 +33,7 @@ angular.module($snaphy.getModuleName())
                    var promise = DetailViewResource.getDetailViewSchema(databaseInstance);
                        promise.then(function(success){
                             if(success){
-                                $scope.detailSchema = success;
+                                DetailViewResource.copy(success, $scope.detailSchema);
                                 $scope.resetData();
                             }
                        }, function(error){
@@ -67,6 +69,35 @@ angular.module($snaphy.getModuleName())
             promise.then(function(success){
                 $scope.detailSchemaData = success;
             }, function(error){
+                console.error(error);
+            });
+        };
+
+
+        /**
+         * Save the detailView data to the server..
+         * @param formSchema
+         * @param formData
+         * @param formModel
+         */
+        $scope.saveForm = function(formSchema, formData, formModel){
+            var promise = DetailViewResource.saveForm(formSchema, formData, formModel);
+            //Disable button..
+            $scope.disableDetailViewButton = true;
+            promise.then(function(success){
+                //Enable button
+                $scope.disableDetailViewButton = false;
+                if(success){
+                    if(success.data){
+                        if(success.data.id){
+                            //Update the id attribute..
+                            $scope.detailSchemaData.id = success.data.id;
+                        }
+                    }
+                }
+            }, function(error){
+                //Enable button
+                $scope.disableDetailViewButton = false;
                 console.error(error);
             });
         };

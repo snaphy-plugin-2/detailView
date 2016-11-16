@@ -12,7 +12,7 @@
                     <h3 class="block-title">Customer Data</h3>
                 </div>
                 <div class="block-content block-content-full">
-                    <form name="schema.form" ng-validate="schema.validations" novalidate  class="form-horizontal">
+                    <form name="detailSchema.form" ng-validate="detailSchema.validations" novalidate  class="form-horizontal">
                         <formly-form   model="detailSchemaData" fields="detailSchema.fields">
                         </formly-form>
                     </form>
@@ -21,13 +21,12 @@
                 <div class="block-content block-content-mini block-content-full">
                     <div class="row">
                         <div class="col-xs-12 text-right">
-
                             <button
-
                                     type="submit"
                                     class="btn btn-sm bg-primary-dark"
                                     style="color:#fff;"
-                                    ng-click="saveForm(schema, schema.form, saveFormData, false)" >
+                                    ng-disabled="disableDetailViewButton"
+                                    ng-click="saveForm(detailSchema, detailSchema.form, detailSchemaData)" >
                                 <i class="fa fa-save"></i>
                                 Update Data
                             </button>
