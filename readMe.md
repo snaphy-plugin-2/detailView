@@ -48,7 +48,7 @@ Fetches the relation schema of a **root model** relationship.
   hasManyThrough:{
     modelName,
     searchId <- the id representation of root model to find the model in the hasMany related model
-    throughModelName <- Name of the model through which the model is related to another model.
+    through <- Name of the model through which the model is related to another model.
   }
   
 }

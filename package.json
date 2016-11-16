@@ -6,6 +6,7 @@
   "author": "Robins Gupta",
   "authorEmail": "robinskumar73@gmail.com",
   "dependencies": {
+    "lodash": "^4.16.6"
   },
   "optionalDependencies": {},
   "repository": {

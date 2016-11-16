@@ -3,6 +3,7 @@
 
 
 module.exports = function( server, databaseObj, helper, packageObj) {
+	const _ =  require("lodash");
 	/**
 	 * Here server is the main app object
 	 * databaseObj is the mapped database from the package.json file
@@ -23,6 +24,27 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 			//refer to https://apidocs.strongloop.com/loopback/#app-models
 			addDetailSchema(server, Model.modelName);
 		});
+	};
+
+
+	var getModelRelationSchema = function(app, modelName){
+		var modelObj = app.models[modelName];
+		modelObj.getModelRelationSchema = function(callback){
+			//Now form the schema and send it to the client..
+			let relations = modelObj.definition.settings.relations;
+			//Get template structure..
+			let schema = generateRelationStr(app, modelName, relations);
+			callback(null, schema);
+		};
+
+		//Now registering the method `getAbsoluteSchema` required for robust automata plugin..
+		modelObj.remoteMethod(
+			'getModelRelationSchema',
+			{
+				returns: {arg: 'schema', type: 'object'},
+				description: "Get the relation detail schema for a particular model."
+			}
+		);
 	};
 
 
@@ -120,6 +142,114 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 		}//for in loop..
 	};
 
+	/**
+	 * Fetch the searchId for a relation data..
+	 */
+	const getSearchId = function(relationObj){
+		if(relationObj){
+			if(!relationObj.foreignKey){
+				return _.lowerFirst(relationObj.model) + "Id";
+			}else{
+				return relationObj.foreignKey;
+			}
+		}
+	};
+
+	/**
+	 * Generate the relation schema for each model...
+	 * @param app
+	 * @param modelName
+	 * @param relationObj
+     */
+	const generateRelationStr = function(app, modelName, relationObj){
+		var schema = {};
+		schema.model = modelName;
+		schema.relations = {
+			belongsTo:[],
+			hasOne:[],
+			hasAndBelongsToMany: [],
+			hasManyThrough: [],
+			hasMany: []
+		};
+
+		if(relationObj){
+			for(let relationName in relationObj){
+				if(relationObj.hasOwnProperty(relationName)){
+					var relationData = relationObj[relationName];
+					if(relationData.type === "hasOne"){
+						let obj = {
+							modelName: relationData.model,
+							searchId: _.lowerFirst(modelName) + "Id"
+						};
+						schema.relations.hasOne.push(obj);
+
+					} else if(relationData.type === "belongsTo"){
+						let obj = {
+							modelName: relationData.model,
+							searchId: _.lowerFirst(modelName) + "Id"
+						};
+						schema.relations.belongsTo.push(obj);
+					} else if(relationData.type === "hasMany"){
+						if(relationData.through){
+							let relationModelName = relationData.through;
+							let relationModelObj = app.models[relationModelName];
+							let relationsObjArray = relationModelObj.definition.settings.relations;
+							let searchedRelationData = findRelationByModelName(modelName, relationsObjArray);
+							if(searchedRelationData){
+								let obj = {
+									modelName: relationData.model,
+									searchId: getSearchId(searchedRelationData),
+									through: relationModelName
+								};
+								schema.relations.hasManyThrough.push(obj);
+							}
+						}else{
+							//normal hasMany case..
+							let relationModelName = relationData.model;
+							let relationModelObj = app.models[relationModelName];
+							let relationsObjArray = relationModelObj.definition.settings.relations;
+							let searchedRelationData = findRelationByModelName(modelName, relationsObjArray);
+							if(searchedRelationData){
+								let obj = {
+									modelName: relationData.model,
+									searchId: getSearchId(searchedRelationData)
+								};
+								schema.relations.hasMany.push(obj);
+							}
+						}
+					} else if(relationData.type === "hasAndBelongsToMany"){
+						let obj = {
+							modelName: relationData.model,
+							searchId: _.lowerFirst(modelName) + "Id"
+						};
+						schema.relations.hasAndBelongsToMany.push(obj);
+
+					}
+				}
+			}
+		}
+
+		return schema;
+	};
+
+
+	/**
+	 * Search for relation object data by model name.
+	 */
+	const findRelationByModelName = function(modelName, relationsObjArray){
+		let relationData;
+		for(let key in relationsObjArray){
+			if(relationsObjArray.hasOwnProperty(key)){
+				if(relationsObjArray[key].model === modelName){
+					relationData = relationsObjArray[key];
+					break;
+				}
+			}
+		}
+
+		return relationData;
+	};
+
 
 	/**
 	 * Generate formly template structure for data entry schema. Also add relations
@@ -128,7 +258,7 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 	 * @param schema {Object} optional
 	 * @returns {*}
 	 */
-	var generateTemplateStr = function(app, modelName, schema){
+	const generateTemplateStr = function(app, modelName, schema){
 		if(schema === undefined){
 			schema = {};
 			schema.model = modelName;

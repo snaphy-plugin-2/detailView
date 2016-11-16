@@ -1,35 +1,43 @@
-//global angular, $snaphy
+/*
+jshint global angular, $snaphy
+ */
+
 'use strict';
 
 angular.module($snaphy.getModuleName())
 
 //Controller for detailViewControl ..
-.controller('detailViewControl', ['$scope', '$stateParams', 'Database',
-    function($scope, $stateParams, Database) {
+.controller('detailViewControl', ['$scope', '$stateParams', 'Database', "DetailViewResource",
+    function($scope, $stateParams, Database, DetailViewResource) {
         //---------------------------------------GLOBAL VALUES-------------------------------
         //Checking if default templating feature is enabled..
-        const defaultTemplate = $snaphy.loadSettings('detailView', "defaultTemplate");
+        var defaultTemplate = $snaphy.loadSettings('detailView', "defaultTemplate");
         $snaphy.setDefaultTemplate(defaultTemplate);
-        const redirectOtherWise = $snaphy.loadSettings('login', 'onLoginRedirectState');
+        var redirectOtherWise = $snaphy.loadSettings('login', 'onLoginRedirectState');
         //Use Database.getDb(pluginName, PluginDatabaseName) to get the Database Resource.
 
-        const modelName = $stateParams.model;
-        const modelId = $stateParams.id;
+        var modelName = $stateParams.model;
+        var modelId = $stateParams.id;
 
 
         //-------------------------------------------------------------------------------------
 
 
-        const init = function(){
+        var init = function(){
             if(modelName){
                let databaseInstance = Database.loadDb(modelName);
                if(databaseInstance){
                     //Start the loading bar..
-                    //TODO: fetch the absolute schema..
-                    //TODO: fetch the model of the respective id with all the related data..required...
+                   var promise = DetailViewResource.getDetailViewSchema(databaseInstance);
+                       promise.then(function(success){
+                            console.log(success);
+                       }, function(error){
+                            console.error(error);
+                       });
+
                }else{
                    //TODO: Go to default template.
-                   //Notfiy unknown location..
+                   //Notify unknown location..
 
                }
             }else{
@@ -38,6 +46,10 @@ angular.module($snaphy.getModuleName())
 
             }
         };
+
+
+        //Call the init method..
+        init();
 
     }//controller function..
 ]);
