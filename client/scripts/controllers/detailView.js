@@ -27,9 +27,17 @@ angular.module($snaphy.getModuleName())
             if(modelName){
                let databaseInstance = Database.loadDb(modelName);
                if(databaseInstance){
-                    //Start the loading bar..
+                   //Start the loading bar..
                    var promise = DetailViewResource.getDetailViewSchema(databaseInstance);
                        promise.then(function(success){
+                            console.log(success);
+                       }, function(error){
+                            console.error(error);
+                       });
+                   
+                   
+                   var relationPromise = DetailViewResource.getRelationSchema(databaseInstance);
+                   relationPromise.then(function(success){
                             console.log(success);
                        }, function(error){
                             console.error(error);

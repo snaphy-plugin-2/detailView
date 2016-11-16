@@ -38,9 +38,31 @@ angular.module($snaphy.getModuleName())
             return deferred.promise;
         };
 
+        /**
+         * Fetch schema for model relation detail
+         * @param databaseService
+         */
+        var getRelationSchema = function(databaseService) {
+            var deferred = $q.defer();
+            if(databaseService){
+                databaseService.getModelRelationSchema({}, {}, function(values) {
+                    var schema = {};
+                    extend(schema, values.schema);
+                    deferred.resolve(schema);
+                }, function(httpResp) {
+                    deferred.reject(httpResp);
+                });
+            }else{
+                deferred.reject("DatabaseService is required");
+            }
+
+            return deferred.promise;
+        };
+
 
         return {
-            getDetailViewSchema: getDetailViewSchema
+            getDetailViewSchema: getDetailViewSchema,
+            getRelationSchema: getRelationSchema
         };
 
     }]);
