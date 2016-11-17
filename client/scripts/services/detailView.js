@@ -1,5 +1,7 @@
-'use strict';
-
+(function () {
+    'use strict';
+    // this function is strict...
+}());
 angular.module($snaphy.getModuleName())
 //Define your services here..
     .factory('DetailViewResource', ['Database', '$q', 'ImageUploadingTracker', 'SnaphyTemplate', function(Database, $q, ImageUploadingTracker, SnaphyTemplate) {
@@ -60,7 +62,6 @@ angular.module($snaphy.getModuleName())
             }else{
                 deferred.reject("DatabaseService is required");
             }
-
             return deferred.promise;
         };
 

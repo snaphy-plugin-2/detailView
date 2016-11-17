@@ -1,6 +1,6 @@
-<div  class="col-sm-12" ng-init="fetchRelatedData(relationDetail, relationType)">
+<div  class="col-sm-12" ng-init="tableViewInit(relationDetail, relationType)">
     <!-- Dynamic Table Full -->
-    <div ng-cloak id="automataWidget" class="block">
+    <div ng-cloak class="block " ng-class="{'block-opt-refresh': tableViewInit(relationDetail, relationType).getCache().settings.isLoading}" >
         <div class="block-header">
             <ul class="block-options">
                 <li>

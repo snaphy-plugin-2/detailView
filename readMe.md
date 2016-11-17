@@ -34,18 +34,22 @@ Fetches the relation schema of a **root model** relationship.
 ```
 {
   hasOne:{
+    relationName,
     modelName,
     searchId <- the id representation of root model to find the model in the hasOne related model
   },
   belongsTo:{
+    relationName,
     modelName,
     searchId <- the id representation of root model to find the model in the belongsTo related model
   },
   hasMany| hasAndBelongsToMany:{
+    relationName,
     modelName,
     searchId <- the id representation of root model to find the model in the hasMany related model
   },
   hasManyThrough:{
+    relationName,
     modelName,
     searchId <- the id representation of root model to find the model in the hasMany related model
     through <- Name of the model through which the model is related to another model.

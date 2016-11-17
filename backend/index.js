@@ -179,6 +179,7 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 					var relationData = relationObj[relationName];
 					if(relationData.type === "hasOne"){
 						let obj = {
+							relationName: relationName,
 							modelName: relationData.model,
 							searchId: _.lowerFirst(modelName) + "Id"
 						};
@@ -186,6 +187,7 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 
 					} else if(relationData.type === "belongsTo"){
 						let obj = {
+							relationName: relationName,
 							modelName: relationData.model,
 							searchId: _.lowerFirst(modelName) + "Id"
 						};
@@ -198,6 +200,7 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 							let searchedRelationData = findRelationByModelName(modelName, relationsObjArray);
 							if(searchedRelationData){
 								let obj = {
+									relationName: relationName,
 									modelName: relationData.model,
 									searchId: getSearchId(searchedRelationData),
 									through: relationModelName
@@ -212,6 +215,7 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 							let searchedRelationData = findRelationByModelName(modelName, relationsObjArray);
 							if(searchedRelationData){
 								let obj = {
+									relationName: relationName,
 									modelName: relationData.model,
 									searchId: getSearchId(searchedRelationData)
 								};
@@ -220,6 +224,7 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 						}
 					} else if(relationData.type === "hasAndBelongsToMany"){
 						let obj = {
+							relationName: relationName,
 							modelName: relationData.model,
 							searchId: _.lowerFirst(modelName) + "Id"
 						};
