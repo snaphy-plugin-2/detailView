@@ -1,1 +1,258 @@
-<div>THIS IS A DEMO</div>
+<div  class="col-sm-12" ng-class="{'col-lg-12': isFilterPresent(), 'col-lg-12': !isFilterPresent() }">
+    <!-- Dynamic Table Full -->
+    <div ng-cloak id="automataWidget" class="block">
+        <div class="block-header">
+            <ul class="block-options">
+                <li>
+                    <button ng-click="resetAll()" type="button" data-toggle="block-option" data-action="refresh_toggle"  ><i class="si si-refresh"></i></button>
+                </li>
+            </ul>
+            <h3 class="block-title">{{tableTitle}}</h3>
+        </div>
+        <div st-pipe="refreshData"   st-table="displayed" class="block-content">
+            <div  class="table-responsive" style="overflow-x: hidden;">
+                <table id="automataTable" class="table table-bordered  table-striped js-dataTable-full">
+                    <thead>
+                    <tr style="cursor: pointer;">
+                        <th style="word-wrap:break-word;"
+                            ng-if = "displayProperties(schema, header)"
+                            ng-repeat="header in schema.header"
+                            st-sort="{{header}}">
+                            {{header | removeDot}}
+                        </th>
+                        <th class="text-center" style="width: 10%;word-wrap:break-word;">Actions</th>
+                    </tr>
+
+                    <tr >
+                        <th style="word-wrap:break-word;" ng-if = "displayProperties(schema, header)" ng-repeat="header in schema.header">
+                            <input
+                                    ng-init="addInlineFilterResetMethod('#automataTable', 'text', inlineSearch, header)"
+                                    class="form-control"
+                                    ng-model="inlineSearch[header]"
+                                    ng-if="showFilterType(header, schema) === 'text'"
+                                    type="text"
+                                    st-search="{{header}}"
+                            />
+                            <select
+                                    ng-change="addWhereQuery(inlineSearch[header], header,  'select')"
+                                    ng-model="inlineSearch[header]"
+                                    ng-if="showFilterType(header, schema) === 'select'"
+                                    class="js-select2 form-control"
+                                    data-placeholder="Choose one.."
+                                    snaphy-ra-load-select
+                                    ng-init="addInlineFilterResetMethod('#automataTable', 'select', inlineSearch, header)">
+                                <option value="" >All</option>
+                                <option  ng-repeat="option in getOptions(header, schema)" value="{{option}}">{{option}}</option>
+                            </select>
+                            <input
+                                    ng-change="addWhereQuery(inlineSearch[header], header, 'date')"
+                                    ng-model="inlineSearch[header]"
+                                    snaphy-ra-load-date
+                                    ng-if="showFilterType(header, schema) === 'date'"
+                                    class="js-datepicker form-control"
+                                    type="text"
+                                    data-date-format="mm/dd/yy"
+                                    placeholder="mm/dd/yy"
+                                    ng-init="addInlineFilterResetMethod('#automataTable', 'date', inlineSearch, header)"
+                            />
+                            <input
+                                    ng-model="inlineSearch[header]"
+                                    ng-change="addWhereQuery(inlineSearch[header], header, 'number')"
+                                    class="form-control"
+                                    ng-if="showFilterType(header, schema) === 'number'"
+                                    type="number"
+                                    ng-init="addInlineFilterResetMethod('#automataTable', 'number', inlineSearch, header)"
+                            />
+
+
+                            <!--HANDLING FOR SPECIAL RELATED CASE MODEL SEARCH..-->
+                            <input
+                                    ng-model="inlineSearch[header]"
+                                    ng-change="addWhereQuery(inlineSearch[header], header, 'related.text', schema)"
+                                    class="form-control"
+                                    ng-if="showFilterType(header, schema) === 'related.text'"
+
+                                    ng-init="addInlineFilterResetMethod('#automataTable', 'related', inlineSearch, header)"
+                            />
+                            <select
+                                    ng-change="addWhereQuery(inlineSearch[header], header,  'related.select', schema)"
+                                    ng-model="inlineSearch[header]"
+                                    ng-if="showFilterType(header, schema) === 'related.select'"
+                                    class="js-select2 form-control"
+                                    data-placeholder="Choose one.."
+                                    snaphy-ra-load-select
+                                    ng-init="addInlineFilterResetMethod('#automataTable', 'select', inlineSearch, header)">
+                                <option value="" >All</option>
+                                <option  ng-repeat="option in getOptions(header, schema)" value="{{option}}">{{option}}</option>
+                            </select>
+                            <input
+                                    ng-change="addWhereQuery(inlineSearch[header], header, 'related.date', schema)"
+                                    ng-model="inlineSearch[header]"
+                                    snaphy-ra-load-date
+                                    ng-if="showFilterType(header, schema) === 'related.date'"
+                                    class="js-datepicker form-control"
+                                    type="text"
+                                    data-date-format="mm/dd/yy"
+                                    placeholder="mm/dd/yy"
+                                    ng-init="addInlineFilterResetMethod('#automataTable', 'date', inlineSearch, header)"
+                            />
+                            <input
+                                    ng-model="inlineSearch[header]"
+                                    ng-change="addWhereQuery(inlineSearch[header], header, 'related.number', schema)"
+                                    class="form-control"
+                                    ng-if="showFilterType(header, schema) === 'related.number'"
+                                    type="number"
+                                    ng-init="addInlineFilterResetMethod('#automataTable', 'number', inlineSearch, header)"
+                            />
+                        </th>
+                        <!--<button ng-click="resetAll()" class="btn btn-minw btn-default pull-right" type="button">Reset</button>-->
+                        <th class="text-center" style="width: 10%;word-wrap:break-word;">
+                            <!-- Clear ui variables.. -->
+                            <button ng-click="resetAll()" class="btn btn-minw btn-default pull-right" type="button">Clear</button>
+                        </th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody ng-show="!isLoading">
+                    <tr  ng-if="rowObject" ng-repeat="(rowId, rowObject) in displayed">
+                        <!--Populating the table values and binding header with columnVal-->
+                        <td ng-if   = "displayProperties(schema, header)"
+                            ng-init = "colType = checkType(rowObject, header);
+                                       colValue    = getColValue(rowObject, header);
+                                       colKey      = getKey(rowObject, header);
+                                       tableConfig = findModelPropertyTableConfig(schema.tables, header);"
+                            ng-repeat="header in schema.header"
+                            style="width:100px;word-wrap:break-word;">
+
+
+                            <span data-sort="{{getColValue(rowObject, header)}}"  data-filter="{{getColValue(rowObject, header)}}" ng-if="colType === '[object String]' || colType === '[object Boolean]'">
+                                <span ng-if="tableConfig.onClick !== undefined">
+                                    <!--Display link here..-->
+                                    <a ui-sref="{{tableConfig.onClick.state}}({{getParams(tableConfig.onClick.params, rowObject)}})">{{getColValue(rowObject, header)}}</a>
+                                </span>
+
+                                <span ng-if="tableConfig.date">
+                                    <!--Display link here..-->
+
+                                    <span
+                                            data-order="{{dateInSeconds(rowObject, header)}}"
+                                            data-sort="{{dateInSeconds(rowObject, header)}}"
+                                            data-search="{{getColValue(rowObject, header)}}" >
+                                        {{toJsDate(getColValue(rowObject, header) )| date:'MM/dd/yyyy'}}
+                                    </span>
+                                </span>
+
+                                <span ng-init="labelType = tableConfig.tag[getColValue(rowObject, header)]" ng-if="tableConfig.tag !== undefined">
+                                    <span ng-if="getTagInfo(schema.tables, colKey, rowObject, header) !== undefined" class="label" ng-class="getTagInfo(schema.tables, colKey, rowObject, header)" >{{getColValue(rowObject, header)}}</span>
+                                    <span ng-if="getTagInfo(schema.tables, colKey, rowObject, header) === undefined" class="label label-default">{{getColValue(rowObject, header)}}</span>
+                                </span>
+                                <span ng-if="tableConfig.tag === undefined && tableConfig.onClick === undefined && !tableConfig.date">
+                                    {{getColValue(rowObject, header) | cut:true:50:' ...'}}
+                                </span>
+                            </span>
+                            <span ng-if="colType === '[object Number]'">
+                                <!--Do string populated work here...-->
+                                {{getColValue(rowObject, header)}}
+                            </span>
+                            <span ng-if="colType === '[object Array]'">
+                                <!--Do string populated work here...-->
+                                <!-- {{getColValue(rowObject, header)}} -->
+                                <ul>
+                                    <li ng-repeat="arrayData in getColValue(rowObject, header)">
+                                        <span ng-if="checkType(getColValue(rowObject, header), $index)  === '[object Object]'">
+                                            <ul style="padding-left: 0px;">
+                                                <li ng-repeat="(key, arrValue) in arrayData">
+                                                    {{arrValue}}
+                                                </li>
+                                            </ul>
+                                        </span>
+                                        <span ng-if="checkType(getColValue(rowObject, header), $index)  !== '[object Object]'">
+                                            {{arrayData}}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </span>
+
+
+
+
+                            <!-- In case of Object or RELATED DATA hasOne or BelongTo type data.. -->
+
+                            <span ng-init="colType = getRelationColumnType (rowObject, header, colKey, colType);
+                                  colValue = getRelationColumnValue(rowObject, header, colKey);"
+                                  ng-if="colType === '[object Object]'">
+                                <!--Do string populated work here...-->
+                                <ul ng-if="colType === '[object Object]'">
+                                    <li style="margin-top: 10px;" ng-init="objColType = checkType(colValue, key);" ng-repeat="(key, value) in colValue">
+                                        <span  ng-if="checkType(colValue, key) === '[object Object]'">
+                                            <ul>
+                                                <li ng-repeat="(nestedKey, nestedValue) in getColValue(colValue, key)">
+                                                    <small><strong>{{nestedKey | capitalize}}</strong></small>: <span>{{nestedValue}}</span>
+                                                </li>
+                                            </ul>
+                                        </span>
+                                        <span ng-if="objColType !== '[object Object]'">
+                                           <small><strong>{{key | capitalize }}</strong></small>: {{getColValue(colValue, key)}}
+                                        </span>
+
+
+                                    </li>
+                                </ul>
+                                <span ng-if="colType !== '[object Object]'">
+                                    <span ng-if="tableConfig.type === 'date'">
+                                        <span
+                                                data-order="{{dateInSeconds(rowObject, header, colKey)}}"
+                                                data-sort="{{dateInSeconds(rowObject, header, colKey)}}"
+                                                data-search="{{getRelationColumnValue(rowObject, header, colKey)}}" >
+                                            {{toJsDate(getRelationColumnValue(rowObject, header, colKey) )| date:'MM/dd/yyyy'}}
+                                        </span>
+                                    </span>
+
+                                    <!-- Tag type -->
+                                    <span ng-init="labelType = tableConfig.tag[getRelationColumnValue(rowObject, header, colKey)]" ng-if="tableConfig.tag !== undefined">
+                                        <span ng-if="getRelatedDataTagInfo(tableConfig, colKey, rowObject, header) !== undefined" class="label" ng-class="getRelatedDataTagInfo(tableConfig, colKey, rowObject, header)" >
+                                            {{getRelationColumnValue(rowObject, header, colKey)}}
+                                        </span>
+                                        <span ng-if="getRelatedDataTagInfo(tableConfig, colKey, rowObject, header) === undefined" class="label label-default">
+                                            {{getRelationColumnValue(rowObject, header, colKey)}}
+                                        </span>
+                                    </span>
+                                    <!-- Default case -->
+                                    <span ng-if="tableConfig.tag === undefined && !tableConfig.date">
+                                        {{getRelationColumnValue(rowObject, header, colKey)  | cut:true:50:' ...'}}
+                                    </span>
+                                </span>
+                            </span>
+
+                        </td>
+                        <!-- For adding table edit and delete options. -->
+                        <td  class="text-center">
+                            <div class="btn-group">
+                                <button class="btn btn-xs btn-default" type="button" data-toggle="modal" data-target="#addDataModal" title="Edit Data" ng-click="prepareDataForEdit(rowObject, schema.form)"><i class="fa fa-pencil"></i></button>
+                                <button
+                                        class="btn btn-xs btn-default"
+                                        type="button"
+                                        data-toggle="tooltip"
+                                        title="Remove Data"
+                                        ng-click="deleteData(schema, rowObject)">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-md-6 ">
+                    <span class="text-left text-muted" style="vertical-align: middle;"> Total {{totalResults}} results | {{pagesReturned}} Pages.</span>
+                </div>
+                <div  class="col-md-6">
+                    <span st-pagination="" st-items-by-page="10" class="text-right" style="vertical-align: middle;"></span>
+                </div>
+            </div>
+        </div>
+    </div><!--div.block-->
+    <!-- END Dynamic Table Full -->
+</div>

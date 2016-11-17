@@ -20,10 +20,10 @@ angular.module($snaphy.getModuleName())
         $scope.detailSchema = {};
         //Data object containing the detailSchemaData block
         $scope.detailSchemaData = {};
+        //Relation Schema data..
+        $scope.relationSchema = {};
         //Initially enable the detail view button..
         $scope.disableDetailViewButton = false;
-
-
         //-------------------------------------------------------------------------------------
 
 
@@ -46,6 +46,8 @@ angular.module($snaphy.getModuleName())
                    var relationPromise = DetailViewResource.getRelationSchema(databaseInstance);
                    relationPromise.then(function(success){
                             console.log(success);
+                            //NOTE: here using toJSON instead of raw object will remove unwanted properties like $promise from object keeping object value clean.
+                            angular.copy(success, $scope.relationSchema);
                        }, function(error){
                             console.error(error);
                        });
@@ -61,6 +63,25 @@ angular.module($snaphy.getModuleName())
 
             }
         };
+
+        /**
+         *
+         * @param key name of the relation 'hasMany', hasOne, hasManythrough, belongsTo, hasAndBelongsToMany
+         * @param value List of the relation details belongs to a particular type of relation..
+         * @example  key ==> hasMany: [{}] <= value
+         * @return {boolean} false to hide display or true to display the table form.
+         */
+        $scope.checkTableDisplay = function(key, value){
+            if(key !== 'hasOne' && key !== 'belongsTo'){
+                if(value){
+                    if(value.length){
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+
 
         /**
          * fetch the detailData of the current model from the server..
