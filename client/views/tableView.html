@@ -7,13 +7,15 @@
                     <button ng-click="tableInstance.resetAll()" type="button" data-toggle="block-option" data-action="refresh_toggle"  ><i class="si si-refresh"></i></button>
                 </li>
             </ul>
-            <h3 class="block-title">{{tableTitle}}</h3>
+            <h3 class="block-title">{{tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
         </div>
-        <div st-pipe="tableInstance.refreshData"   st-table="tableInstance.getCache().displayed" class="block-content">
+
+        <div st-pipe="tableInstance.refreshData" ng-init="tableId = tableInstance.getCache().relationName + 'Table'"  st-table="tableInstance.getCache().displayed" class="block-content">
             <div  class="table-responsive" style="overflow-x: hidden;">
-                <table id="automataTable" class="table table-bordered  table-striped js-dataTable-full">
+                <table ng-attr-id="{{tableId}}"  class="table table-bordered  table-striped js-dataTable-full">
                     <thead>
                         <tr style="cursor: pointer;">
+
                             <th style="word-wrap:break-word;"
                                 ng-if = "displayProperties(tableInstance.getCache().schema, header)"
                                 ng-repeat="header in tableInstance.getCache().schema.header"
@@ -24,36 +26,36 @@
                         </tr>
 
                         <tr >
-                            <th style="word-wrap:break-word;" ng-if = "displayProperties(tableInstance.getCache().schema, header)" ng-repeat="header in tableInstance.getCache().schema.header">
+                            <th style="word-wrap:break-word;" ng-if = "tableInstance.displayProperties(tableInstance.getCache().schema, header)" ng-repeat="header in tableInstance.getCache().schema.header">
                                 <input
-                                        ng-init="addInlineFilterResetMethod('#automataTable', 'text', inlineSearch, header)"
+                                        ng-init="tableInstance.addInlineFilterResetMethod(tableId, 'text', tableInstance.getCache().settings.inlineSearch, header)"
                                         class="form-control"
-                                        ng-model="inlineSearch[header]"
-                                        ng-if="showFilterType(header, tableInstance.getCache().schema) === 'text'"
+                                        ng-model="tableInstance.getCache().settings.inlineSearch[header]"
+                                        ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'text'"
                                         type="text"
                                         st-search="{{header}}"
                                 />
                                 <select
-                                        ng-change="addWhereQuery(inlineSearch[header], header,  'select')"
-                                        ng-model="inlineSearch[header]"
-                                        ng-if="showFilterType(header, tableInstance.getCache().schema) === 'select'"
+                                        ng-change="addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header,  'select')"
+                                        ng-model="tableInstance.getCache().settings.inlineSearch[header]"
+                                        ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'select'"
                                         class="js-select2 form-control"
                                         data-placeholder="Choose one.."
                                         snaphy-ra-load-select
-                                        ng-init="addInlineFilterResetMethod('#automataTable', 'select', inlineSearch, header)">
+                                        ng-init="tableInstance.addInlineFilterResetMethod(tableId, 'select', inlineSearch, header)">
                                     <option value="" >All</option>
                                     <option  ng-repeat="option in getOptions(header, tableInstance.getCache().schema)" value="{{option}}">{{option}}</option>
                                 </select>
                                 <input
-                                        ng-change="addWhereQuery(inlineSearch[header], header, 'date')"
-                                        ng-model="inlineSearch[header]"
+                                        ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearchs[header], header, 'date')"
+                                        ng-model="tableInstance.getCache().settings.inlineSearch[header]"
                                         snaphy-ra-load-date
-                                        ng-if="showFilterType(header, tableInstance.getCache().schema) === 'date'"
+                                        ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'date'"
                                         class="js-datepicker form-control"
                                         type="text"
                                         data-date-format="mm/dd/yy"
                                         placeholder="mm/dd/yy"
-                                        ng-init="addInlineFilterResetMethod('#automataTable', 'date', inlineSearch, header)"
+                                        ng-init="tableInstance.addInlineFilterResetMethod(tableId, 'date', tableInstance.getCache().settings.inlineSearch, header)"
                                 />
                                 <input
                                         ng-model="inlineSearch[header]"
@@ -61,7 +63,7 @@
                                         class="form-control"
                                         ng-if="showFilterType(header, tableInstance.getCache().schema) === 'number'"
                                         type="number"
-                                        ng-init="addInlineFilterResetMethod('#automataTable', 'number', inlineSearch, header)"
+                                        ng-init="addInlineFilterResetMethod(tableId, 'number', inlineSearch, header)"
                                 />
 
 
@@ -72,7 +74,7 @@
                                         class="form-control"
                                         ng-if="showFilterType(header, tableInstance.getCache().schema) === 'related.text'"
 
-                                        ng-init="addInlineFilterResetMethod('#automataTable', 'related', inlineSearch, header)"
+                                        ng-init="addInlineFilterResetMethod(tableId, 'related', inlineSearch, header)"
                                 />
                                 <select
                                         ng-change="addWhereQuery(inlineSearch[header], header,  'related.select', tableInstance.getCache().schema)"
@@ -81,7 +83,7 @@
                                         class="js-select2 form-control"
                                         data-placeholder="Choose one.."
                                         snaphy-ra-load-select
-                                        ng-init="addInlineFilterResetMethod('#automataTable', 'select', inlineSearch, header)">
+                                        ng-init="addInlineFilterResetMethod(tableId, 'select', inlineSearch, header)">
                                     <option value="" >All</option>
                                     <option  ng-repeat="option in getOptions(header, tableInstance.getCache().schema)" value="{{option}}">{{option}}</option>
                                 </select>
@@ -94,7 +96,7 @@
                                         type="text"
                                         data-date-format="mm/dd/yy"
                                         placeholder="mm/dd/yy"
-                                        ng-init="addInlineFilterResetMethod('#automataTable', 'date', inlineSearch, header)"
+                                        ng-init="addInlineFilterResetMethod(tableId, 'date', inlineSearch, header)"
                                 />
                                 <input
                                         ng-model="inlineSearch[header]"
@@ -102,7 +104,7 @@
                                         class="form-control"
                                         ng-if="showFilterType(header, tableInstance.getCache().schema) === 'related.number'"
                                         type="number"
-                                        ng-init="addInlineFilterResetMethod('#automataTable', 'number', inlineSearch, header)"
+                                        ng-init="addInlineFilterResetMethod(tableId, 'number', inlineSearch, header)"
                                 />
                             </th>
                             <!--<button ng-click="resetAll()" class="btn btn-minw btn-default pull-right" type="button">Reset</button>-->

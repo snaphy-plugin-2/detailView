@@ -61,6 +61,9 @@ angular.module($snaphy.getModuleName())
             }
         };
 
+
+
+
         /**
          *
          * @param key name of the relation 'hasMany', hasOne, hasManythrough, belongsTo, hasAndBelongsToMany
@@ -78,6 +81,8 @@ angular.module($snaphy.getModuleName())
             }
             return false;
         };
+
+
 
 
         /**
@@ -141,7 +146,6 @@ angular.module($snaphy.getModuleName())
                      * @param schema optional if provided the adds schema object..
                      */
                     var resetData = function(schema){
-                        cache[relationName] = {};
                         angular.copy(relationDetail, cache[relationName]);
                         //Also add the relation type..
                         cache[relationName].relationType = relationType;
@@ -168,12 +172,17 @@ angular.module($snaphy.getModuleName())
                             pagesReturned: 0,
                             totalResults: 0,
                             //Reset the filter for tracking model where query for facilitating the model search filter..
-                            watchRelatedModels: {}
+                            watchRelatedModels: {},
+                            saveFormData: {},
+                            //Inline search data object
+                            //Store data of inline search associated with each table header.
+                            inlineSearch:{}
                         };
                     };
 
                     //Start memoization..
                     if(!cache[relationName]){
+                        cache[relationName] = {};
                         resetData();
                     }
 
@@ -189,9 +198,9 @@ angular.module($snaphy.getModuleName())
                         resetData(schema);
 
                         //TODO: Uncomment it later..
-                        /*for (var i = 0; i < resetFilterList.length; i++) {
+                        /*for (var i = 0; i < getCache.settings.resetFilterList.length; i++) {
                             //Now call each method..
-                            resetFilterList[i]();
+                            getCache.settings.resetFilterList[i]();
                         }*/
                         //Set reset filter state to be true..
                         cache[relationName].settings.filterReset = true;
@@ -304,10 +313,292 @@ angular.module($snaphy.getModuleName())
                         }
                     };
 
+
+
+
+
+                    //Example addInlineFilterResetMethod('#automataTable', 'number', inlineSearch, header)
+                    /**
+                     * Add reset method for each table..
+                     * @param tableId
+                     * @param type
+                     * @param modelObj
+                     * @param columnName
+                     */
+                    var addInlineFilterResetMethod = function(tableId, type, modelObj, columnName){
+                        if(type === "select" || type === "related.select"){
+                            var element = $(tableId);
+                            //Now add a Reset method to the filter..
+                            addResetMethod(function(){
+                                //console.log("Resetting select");
+                                if(modelObj[columnName]){
+                                    modelObj[columnName] = null;
+                                }
+
+                                try{
+                                    //Now reinitialize the
+                                    setTimeout(function() {
+                                        $($(element).find('.js-select2')).select2('val', 'All');
+                                    }, 0);
+                                }
+                                catch(e){
+
+                                }
+
+                            });
+                        }else if (type === "text" || type === "number" || type === "date" || type === 'related') {
+                            addResetMethod(function(){
+                                $timeout(function(){
+                                    //$($(element).find('input')).val("");
+                                    //console.log("Resetting ", type);
+                                    if(modelObj[columnName]){
+                                        modelObj[columnName] = null;
+                                    }
+                                });
+                            });
+                        }
+                    };
+
+
+                    /**
+                     * Return the params for ui-sref for onClick
+                     * @param params
+                     * @param rowObject
+                     * @returns {*}
+                     */
+                    var getParams = function(params, rowObject) {
+                        for (var key in params) {
+                            if (params.hasOwnProperty(key)) {
+                                if(rowObject[key]){
+                                    params[key] = rowObject[key];
+                                }
+                            }
+                        }
+                        return params;
+                    };
+
+
+
+                    /**
+                     * Event listener for adding reset button to the filters. To be called when reset button is called..
+                     */
+                    var addResetMethod = function(func) {
+                        getCache.resetFilterList = getCache.resetFilterList || [];
+                        getCache.resetFilterList.push(func);
+                    };
+
+
+                    /**
+                     * Reset the saved form data..
+                     * @param form
+                     */
+                    var resetSavedForm = function(form) {
+                        //reset the tracking bar..
+                        ImageUploadingTracker.resetTracker();
+                        getCache.settings.saveFormData = {};
+                        if (form) {
+                            form.$setPristine();
+                        }
+                    };
+
+
+
+                    /**
+                     * change prop like access-level to level only
+                     * Get the model properties name on the case of belongsTo or hasOne relationships..
+                     * @param columnHeader
+                     */
+                    var getColumnKey = function(columnHeader) {
+                        //var keyName;
+                        var patt = /^[A-Z0-9a-z-$]+\./;
+                        return columnHeader.replace(patt, '');
+                    };
+
+
+
+                    /**
+                     * Check if to display the properties of the table or not.
+                     * schema {
+                     * 	tables:{
+                     * 		username:{
+                     * 			"display": false
+                     * 		}
+                     * 	}
+                     * }
+                     */
+                    var displayProperties = function(schema, header) {
+                        //First convert the header to optimal type..
+                        header = header.replace(/\./, "_");
+                        if (schema.tables) {
+                            if (schema.tables[header]) {
+                                if (schema.tables[header].display !== undefined) {
+                                    if (!schema.tables[header].display) {
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                        return true;
+                    };
+
+                    var convertToUnderScore = function(key){
+                        if(key){
+                            return key.replace(/\./, "_");
+                        }
+                        return "";
+                    };
+
+
+                    //Check if to show the text filter..
+                    var showFilterType = function(header, schema){
+                        if(schema.tables){
+                            var keyName = convertToUnderScore(header);
+                            if(schema.tables[keyName]){
+                                var tableProp = schema.tables[keyName];
+                                if(!tableProp){
+                                    return null;
+                                }
+                                if(tableProp.search !== "related"){
+                                    return tableProp.search;
+                                }else{
+                                    var type = tableProp.type;
+                                    if(type === "date"){
+                                        return "related.date";
+                                    }
+                                    else if( type === "select"){
+                                        return "related.select";
+                                    }
+                                    else if( type === "number"){
+                                        return "related.number";
+                                    }else{
+                                        return "related.text";
+                                    }
+                                }
+                            }
+                        }
+
+                        return null;
+                    };
+
+
+                    var addWhereQuery = function(model, columnName, filterType, schema){
+                        resetPage = true;
+                        $scope.where = $scope.where  || {};
+                        if(filterType === "select"){
+                            if(model){
+                                $scope.where = prepareWhereQuery($scope.where, filterType, columnName, model);
+                            }
+
+                            //Now redraw the table..
+                            $scope.refreshData();
+                        }else if (filterType === "number") {
+                            //console.log("select", columnName, model);
+                            if(model){
+                                $scope.where = prepareWhereQuery($scope.where, filterType, columnName, model);
+                            }
+                            //Now redraw the table..
+                            $scope.refreshData();
+                        }
+                        else if (filterType === "date") {
+                            //console.log("select", columnName, model);
+                            if(model){
+                                $scope.where = prepareWhereQuery($scope.where, filterType, columnName, model);
+
+                            }
+                            //Now redraw the table..
+                            $scope.refreshData();
+
+                        }else if(/^related.+/.test(filterType)){
+                            if(model){
+                                //First find the data....
+                                if(schema.tables){
+                                    var keyName = columnName.replace(/\./, "_");
+                                    if(schema.tables[keyName]){
+                                        //Define a $scope variable for watching query related to..each models.
+                                        $scope.watchRelatedModels = $scope.watchRelatedModels || {};
+
+                                        var tableProp = schema.tables[keyName];
+                                        var modelName = tableProp.relatedModel;
+                                        var foreignKey = tableProp.foreignKey;
+                                        var searchProp = tableProp.propertyName;
+                                        //Now first find the related values then add where query..
+                                        var dbService = Database.loadDb(modelName);
+                                        $scope.watchRelatedModels[modelName] = $scope.watchRelatedModels[modelName] || {};
+                                        $scope.watchRelatedModels[modelName].filter = $scope.watchRelatedModels[modelName].filter || {};
+                                        $scope.watchRelatedModels[modelName].filter.where  = $scope.watchRelatedModels[modelName].filter.where || {};
+                                        $scope.watchRelatedModels[modelName].filter.limit  = 10;
+                                        $scope.watchRelatedModels[modelName].filter.fields =  { id: true };
+                                        //Preparing the where query..
+                                        $scope.watchRelatedModels[modelName].filter.where = prepareWhereQuery($scope.watchRelatedModels[modelName].filter.where, tableProp.type, searchProp, model);
+
+                                        dbService.find({
+                                            filter: $scope.watchRelatedModels[modelName].filter
+                                        }, function(values){
+                                            //console.log(values);
+                                            //get the ids list..
+                                            if(values){
+                                                if(values.length){
+                                                    //TODO only create if undefined..
+
+                                                    var idList = [];
+                                                    for(var i=0; i<values.length; i++){
+                                                        //Collect the ids
+                                                        var data = values[i];
+                                                        idList.push(data.id);
+                                                    }
+
+
+                                                    //now prepare the where query..
+                                                    if(idList.length){
+                                                        //NOw remove the duplicates..
+                                                        idList = arrayUnique(idList);
+
+                                                        //PREPARE THE WHERE QUERY..
+                                                        $scope.where[foreignKey] = {
+                                                            inq: idList
+                                                        };
+                                                        //Now redraw the table..
+                                                        $scope.refreshData();
+                                                    }
+                                                }else{
+                                                    //Clear the data list..
+                                                    $scope.clearData();
+
+                                                }
+                                            }else{
+
+                                                //Clear the data..list
+                                                $scope.clearData();
+                                            }
+                                        }, function(err){
+                                            console.error(err);
+                                        });
+
+                                    }
+                                }
+
+                            }
+
+                        }else{
+
+                        }
+                        //console.info("modifed where", $scope.where);
+
+                    };
+
+
                     return {
                         getCache: getCache,
                         refreshData: refreshData,
-                        resetAll: resetAll
+                        resetAll: resetAll,
+
+                        //Other table methods..
+                        resetSavedForm: resetSavedForm,
+                        addInlineFilterResetMethod: addInlineFilterResetMethod,
+                        getParams: getParams,
+                        getColumnKey: getColumnKey,
+                        displayProperties: displayProperties,
+                        showFilterType: showFilterType
 
                     };
                 }
