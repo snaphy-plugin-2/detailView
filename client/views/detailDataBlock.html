@@ -44,7 +44,6 @@
 
 <div class="content">
     <!-- Simple Blocks -->
-    <!--TODO: RUN A LOOP OVER THIS INCLUDE TO FETCH ALL THE REQUIRED DATA.-->
     <div class="row" ng-repeat="(relationType, relationList) in relationSchema.relations">
         <div ng-if="checkTableDisplay(relationType, relationList)" ng-repeat="relationDetail in relationList">
             <div ng-include="'detailView/views/tableView.html'"></div>
@@ -52,3 +51,12 @@
 
     </div>
 </div>
+
+<!-- For showing dialog box -->
+<snaphy-dialog
+        message="{{dialog.message}}"
+        table-title="{{dialog.title}}"
+        on-cancel="dialog.onCancel()"
+        on-confirm="dialog.onConfirm()"
+        show-dialog="dialog.show">
+</snaphy-dialog>
