@@ -481,32 +481,107 @@ angular.module($snaphy.getModuleName())
                     };
 
 
+                    /**
+                     * Prepare where query for model. To be used in searching of  models. Used in method addWhereQuery.
+                     * @param  {Object}          where      Where type object for for filtering the database. example {customerId: "324edfcs"}
+                     * @param  {String}          searchType "select", "number", "date", "text"
+                     * @param  {String}          columnName Name of column on which where query is applied.
+                     * @param  {String or Object} data      Data assosiated with where query.
+                     * @return {Object}                     Modified "where" type object for for filtering the database. example {customerId: "324edfcs"}
+                     */
+                    var prepareWhereQuery = function(where, searchType, columnName, data){
+                        if(data){
+                            if(columnName){
+                                //Type may be of 3 types "select", "date", "text", "number"
+                                if(searchType === "select" || searchType === "number"){
+                                    where[columnName] = data;
+                                }else if(searchType === "date"){
+                                    //TODO CHANGE HERE TO NOT RESET EVERYTIME..
+                                    where.and = [];
+                                    var obj = {};
+                                    obj[columnName] = {"gte" : new Date(data) };
+                                    where.and.push(obj);
+                                }else{
+                                    where[columnName] = {
+                                        like : data
+                                    };
+                                }
+                            }
+
+
+                        }
+
+                        return where;
+                    };
+
+                    //http://stackoverflow.com/questions/1584370/how-to-merge-two-arrays-in-javascript-and-de-duplicate-items
+                    /**
+                     * Method to remove the duplicate entries from an array
+                     * @return {[type]} [description]
+                     */
+                    var arrayUnique = function(array) {
+                        var a = array.concat();
+                        for(var i=0; i<a.length; ++i) {
+                            for(var j=i+1; j<a.length; ++j) {
+                                if(a[i] === a[j])
+                                    a.splice(j--, 1);
+                            }
+                        }
+
+                        return a;
+                    };
+
+
+                    //Clear the data showing in the table.
+                    $scope.clearData = function(){
+                        getCache.displayed.length = 0;
+                        getCache.settings.pagesReturned = 0;
+                        getCache.settings.totalResults = 0;
+
+                    };
+
+
+                    var getOptions = function(header, schema){
+                        if(schema.tables){
+                            var keyName = header.replace(/\./, "_");
+                            if(schema.tables[keyName]){
+                                var tableProp = schema.tables[keyName];
+                                if(tableProp.search === "select" || tableProp.type === "select"){
+                                    if(tableProp.options){
+                                        return tableProp.options;
+                                    }
+                                }
+                            }
+                        }
+
+                        return null;
+                    };
+
+
                     var addWhereQuery = function(model, columnName, filterType, schema){
-                        resetPage = true;
-                        $scope.where = $scope.where  || {};
+                        getCache.settings.resetPage = true;
+                        getCache.where = getCache.where  || {};
                         if(filterType === "select"){
                             if(model){
-                                $scope.where = prepareWhereQuery($scope.where, filterType, columnName, model);
+                                getCache.where = prepareWhereQuery(getCache.where, filterType, columnName, model);
                             }
 
                             //Now redraw the table..
-                            $scope.refreshData();
+                            refreshData();
                         }else if (filterType === "number") {
-                            //console.log("select", columnName, model);
                             if(model){
-                                $scope.where = prepareWhereQuery($scope.where, filterType, columnName, model);
+                                getCache.where = prepareWhereQuery(getCache.where, filterType, columnName, model);
                             }
                             //Now redraw the table..
-                            $scope.refreshData();
+                            refreshData();
                         }
                         else if (filterType === "date") {
-                            //console.log("select", columnName, model);
                             if(model){
-                                $scope.where = prepareWhereQuery($scope.where, filterType, columnName, model);
+                                getCache.where = prepareWhereQuery(getCache.where, filterType, columnName, model);
 
                             }
                             //Now redraw the table..
-                            $scope.refreshData();
+                            refreshData();
 
                         }else if(/^related.+/.test(filterType)){
                             if(model){
@@ -515,7 +590,7 @@ angular.module($snaphy.getModuleName())
                                     var keyName = columnName.replace(/\./, "_");
                                     if(schema.tables[keyName]){
                                         //Define a $scope variable for watching query related to..each models.
-                                        $scope.watchRelatedModels = $scope.watchRelatedModels || {};
+                                        getCache.settings.watchRelatedModels = getCache.settings.watchRelatedModels || {};
 
                                         var tableProp = schema.tables[keyName];
                                         var modelName = tableProp.relatedModel;
@@ -523,23 +598,21 @@ angular.module($snaphy.getModuleName())
                                         var searchProp = tableProp.propertyName;
                                         //Now first find the related values then add where query..
                                         var dbService = Database.loadDb(modelName);
-                                        $scope.watchRelatedModels[modelName] = $scope.watchRelatedModels[modelName] || {};
-                                        $scope.watchRelatedModels[modelName].filter = $scope.watchRelatedModels[modelName].filter || {};
-                                        $scope.watchRelatedModels[modelName].filter.where  = $scope.watchRelatedModels[modelName].filter.where || {};
-                                        $scope.watchRelatedModels[modelName].filter.limit  = 10;
-                                        $scope.watchRelatedModels[modelName].filter.fields =  { id: true };
+                                        getCache.settings.watchRelatedModels[modelName] = getCache.settings.watchRelatedModels[modelName] || {};
+                                        getCache.settings.watchRelatedModels[modelName].filter = getCache.settings.watchRelatedModels[modelName].filter || {};
+                                        getCache.settings.watchRelatedModels[modelName].filter.where  = getCache.settings.watchRelatedModels[modelName].filter.where || {};
+                                        getCache.settings.watchRelatedModels[modelName].filter.limit  = 10;
+                                        getCache.settings.watchRelatedModels[modelName].filter.fields =  { id: true };
                                         //Preparing the where query..
-                                        $scope.watchRelatedModels[modelName].filter.where = prepareWhereQuery($scope.watchRelatedModels[modelName].filter.where, tableProp.type, searchProp, model);
+                                        getCache.settings.watchRelatedModels[modelName].filter.where = prepareWhereQuery(getCache.settings.watchRelatedModels[modelName].filter.where, tableProp.type, searchProp, model);
 
                                         dbService.find({
-                                            filter: $scope.watchRelatedModels[modelName].filter
+                                            filter: getCache.settings.watchRelatedModels[modelName].filter
                                         }, function(values){
-                                            //console.log(values);
                                             //get the ids list..
                                             if(values){
                                                 if(values.length){
                                                     //TODO only create if undefined..
-
                                                     var idList = [];
                                                     for(var i=0; i<values.length; i++){
                                                         //Collect the ids
@@ -554,21 +627,21 @@ angular.module($snaphy.getModuleName())
                                                         idList = arrayUnique(idList);
 
                                                         //PREPARE THE WHERE QUERY..
-                                                        $scope.where[foreignKey] = {
+                                                        getCache.where[foreignKey] = {
                                                             inq: idList
                                                         };
                                                         //Now redraw the table..
-                                                        $scope.refreshData();
+                                                        refreshData();
                                                     }
                                                 }else{
                                                     //Clear the data list..
-                                                    $scope.clearData();
+                                                    clearData();
 
                                                 }
                                             }else{
 
                                                 //Clear the data..list
-                                                $scope.clearData();
+                                                clearData();
                                             }
                                         }, function(err){
                                             console.error(err);
@@ -579,11 +652,7 @@ angular.module($snaphy.getModuleName())
 
                             }
 
-                        }else{
-
                         }
-                        //console.info("modifed where", $scope.where);
-
                     };
 
 
@@ -598,7 +667,9 @@ angular.module($snaphy.getModuleName())
                         getParams: getParams,
                         getColumnKey: getColumnKey,
                         displayProperties: displayProperties,
-                        showFilterType: showFilterType
+                        showFilterType: showFilterType,
+                        addWhereQuery: addWhereQuery,
+                        getOptions: getOptions
 
                     };
                 }
