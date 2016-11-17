@@ -5,8 +5,8 @@
 angular.module($snaphy.getModuleName())
 
 //Controller for detailViewControl ..
-.controller('detailViewControl', ['$scope', '$stateParams', 'Database', "DetailViewResource",
-    function($scope, $stateParams, Database, DetailViewResource) {
+.controller('detailViewControl', ['$scope', '$stateParams', 'Database', "DetailViewResource", "Resource", "ImageUploadingTracker",
+    function($scope, $stateParams, Database, DetailViewResource, Resource, ImageUploadingTracker) {
         //---------------------------------------GLOBAL VALUES-------------------------------
         //Checking if default templating feature is enabled..
         var defaultTemplate = $snaphy.loadSettings('detailView', "defaultTemplate");
@@ -136,20 +136,39 @@ angular.module($snaphy.getModuleName())
                 var relationName = relationDetail.relationName;
                 if(relationName){
                     //Reset the data and create a blank object..
-                    var resetData = function(){
+                    /**
+                     *
+                     * @param schema optional if provided the adds schema object..
+                     */
+                    var resetData = function(schema){
                         cache[relationName] = {};
                         angular.copy(relationDetail, cache[relationName]);
                         //Also add the relation type..
                         cache[relationName].relationType = relationType;
-                        //Absoulte schema that is fetched from server..
-                        cache[relationName].schema = {};
+                        if(schema){
+                            //Absolute schema that is fetched from server..
+                            cache[relationName].schema = schema;
+                        }else{
+                            //Absolute schema that is fetched from server..
+                            cache[relationName].schema = {};
+                        }
+
                         //Data to be displayed in the table..
                         cache[relationName].displayed = [];
+                        //Where object for adding filtering..
+                        cache[relationName].where = {};
+                        cache[relationName].where[relationDetail.searchId] = modelId;
                         //This object all the settings related to current dataContainer of table view.
                         cache[relationName].settings = {
                             filterReset : false,
                             resetPage : false,
-                            isLoading: true
+                            //tracking if absoluteSchema is fetched or not..
+                            schemaFetched: false,
+                            isLoading: true,
+                            pagesReturned: 0,
+                            totalResults: 0,
+                            //Reset the filter for tracking model where query for facilitating the model search filter..
+                            watchRelatedModels: {}
                         };
                     };
 
@@ -157,8 +176,31 @@ angular.module($snaphy.getModuleName())
                     if(!cache[relationName]){
                         resetData();
                     }
-                    //console.log(cache[relationName]);
 
+
+                    /**
+                     * For resetting all filter and table on reset button click..
+                     */
+                    var resetAll = function() {
+                        //reset the tracking bar..
+                        ImageUploadingTracker.resetTracker();
+                        var schema = cache[relationName].schema;
+                        //Now reset the data..
+                        resetData(schema);
+
+                        //TODO: Uncomment it later..
+                        /*for (var i = 0; i < resetFilterList.length; i++) {
+                            //Now call each method..
+                            resetFilterList[i]();
+                        }*/
+                        //Set reset filter state to be true..
+                        cache[relationName].settings.filterReset = true;
+                        //Now reload the table again..
+                        refreshData();
+                    };
+
+
+                    //console.log(cache[relationName]);
                     //TODO: CREATE A NEW SERVICE AND DO ALL WORK THERE..
                     //TODO: FETCH THE ABSOLUTE SCHEMA For each model..
                     //TODO: LOAD THE DATA FROM THE SERVER WITH SEARCH LIST ID EMBEDED IN THE FILTER
@@ -195,7 +237,7 @@ angular.module($snaphy.getModuleName())
 
                         var pagination = tableState.pagination;
                         var start = tableState.pagination.start || 0; // This is NOT the page number, but the index of item in the list that you want to use to display the table.
-                        var number = pagination.number || 10; // Number of entries showed per page.
+                        var number = pagination.number || 5; // Number of entries showed per page.
                         //If a page is reset state i.e some filter is applied then move back to 1 page..
                         if(dataContainer.settings.resetPage){
                             tableState.pagination.start = 0;
@@ -206,7 +248,7 @@ angular.module($snaphy.getModuleName())
                         if(dataContainer.settings.filterReset){
                             tableState.pagination.start = 0;
                             start = 0;
-                            //Reset the search parameterts..
+                            //Reset the search parameter..
                             tableState.pagination.search = {};
                             //Also reset the search filters
                             tableState.search = {};
@@ -214,62 +256,44 @@ angular.module($snaphy.getModuleName())
                             dataContainer.settings.filterReset = false;
                         }
 
-                        if ($.isEmptyObject($scope.schema )) {
-
+                        //If absoluteSchema is not present..
+                        if ($.isEmptyObject(dataContainer.schema )) {
                             //First get the schema..
-                            Resource.getSchema(databaseName, function(schema) {
+                            Resource.getSchema(modelName, function(schema) {
                                 //Populate the schema..
-                                $scope.schema = schema;
-                                //console.log(schema);
-                                $scope.where = $scope.where || {};
+                                dataContainer.schema = schema;
+                                console.log(schema);
+                                dataContainer.where = dataContainer.where || {};
 
-                                Resource.getPage(start, number, tableState, databaseName, schema, $scope.where).then(function(result) {
-                                    $scope.displayed = result.data;
-                                    tableState.pagination.numberOfPages = result.numberOfPages; //set the number of pages so the pagination can update
-                                    $scope.pagesReturned = result.numberOfPages;
-                                    $scope.totalResults = result.count;
-                                    $scope.isLoading = false;
-                                    dataFetched = true;
-                                    if (tablePanelId) {
-                                        $timeout(function() {
-                                            //Now hide remove the refresh widget..
-                                            $(tablePanelId).removeClass('block-opt-refresh');
-                                        }, 200);
-                                    }
+                                Resource.getPage(start, number, tableState, modelName, schema, dataContainer.where).then(function(result) {
+                                    dataContainer.displayed = result.data;
+                                    //set the number of pages so the pagination can update
+                                    tableState.pagination.numberOfPages = result.numberOfPages;
+                                    dataContainer.settings.pagesReturned = result.numberOfPages;
+                                    dataContainer.settings.totalResults = result.count;
+                                    //Stop the loading bar..
+                                    dataContainer.settings.isLoading = false;
+                                    dataContainer.settings.schemaFetched = true;
                                 });
                             }, function(httpResp){
                                 console.error(httpResp);
-                                if (tablePanelId) {
-                                    $timeout(function() {
-                                        //Now hide remove the refresh widget..
-                                        $(tablePanelId).removeClass('block-opt-refresh');
-                                    }, 200);
-                                }
+                                //Stop the loading bar..
+                                dataContainer.settings.isLoading = false;
+                                dataContainer.settings.schemaFetched = false;
                             });
                         }else{
-                            Resource.getPage(start, number, tableState, databaseName, $scope.schema, $scope.where).then(function(result) {
-                                $scope.displayed = result.data;
+                            Resource.getPage(start, number, tableState, modelName, dataContainer.schema, dataContainer.where).then(function(result) {
+                                dataContainer.displayed = result.data;
                                 tableState.pagination.numberOfPages = result.numberOfPages; //set the number of pages so the pagination can update
-                                $scope.pagesReturned = result.numberOfPages;
-                                $scope.totalResults = result.count;
-                                $scope.isLoading = false;
-                                dataFetched = true;
-                                if (tablePanelId) {
-                                    $timeout(function() {
-                                        //Now hide remove the refresh widget..
-                                        $(tablePanelId).removeClass('block-opt-refresh');
-                                    }, 200);
-                                }
+                                dataContainer.settings.pagesReturned = result.numberOfPages;
+                                dataContainer.settings.totalResults = result.count;
+                                dataContainer.settings.isLoading = false;
+                                dataContainer.settings.schemaFetched = true;
                             },function(httpResp){
                                 console.error(httpResp);
-                                if (tablePanelId) {
-                                    $timeout(function() {
-                                        //Now hide remove the refresh widget..
-                                        $(tablePanelId).removeClass('block-opt-refresh');
-                                    }, 200);
-                                }
-
-                                //console.error(respHeader);
+                                //Stop the loading bar..
+                                dataContainer.settings.isLoading = false;
+                                dataContainer.settings.schemaFetched = false;
                                 SnaphyTemplate.notify({
                                     message: "Error occured. Please click on the reset button to go back to normal.",
                                     type: 'danger',
@@ -278,12 +302,12 @@ angular.module($snaphy.getModuleName())
                                 });
                             });
                         }
-
                     };
 
                     return {
                         getCache: getCache,
-                        refreshData: refreshData
+                        refreshData: refreshData,
+                        resetAll: resetAll
 
                     };
                 }
