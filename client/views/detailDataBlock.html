@@ -1,0 +1,51 @@
+<div class="content">
+    <!-- Simple Blocks -->
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+            <div ng-cloak id="detailViewWidget" class="block">
+                <div class="block-header">
+                    <ul class="block-options">
+                        <li>
+                            <button ng-click="resetData()" type="button" data-toggle="block-option" data-action="refresh_toggle"  ><i class="si si-refresh"></i></button>
+                        </li>
+                    </ul>
+                    <h3 class="block-title">Customer Data</h3>
+                </div>
+
+                <div class="block-content block-content-full">
+                    <form name="detailSchema.form" ng-validate="detailSchema.validations" novalidate  class="form-horizontal">
+                        <formly-form   model="detailSchemaData" fields="detailSchema.fields">
+                        </formly-form>
+                    </form>
+                </div>
+
+                <div class="block-content block-content-mini block-content-full">
+                    <div class="row">
+                        <div class="col-xs-12 text-right">
+                            <button
+                                    type="submit"
+                                    class="btn btn-sm bg-primary-dark"
+                                    style="color:#fff;"
+                                    ng-disabled="disableDetailViewButton"
+                                    ng-click="saveForm(detailSchema, detailSchema.form, detailSchemaData)" >
+                                <i class="fa fa-save"></i>
+                                Update Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="content">
+    <!-- Simple Blocks -->
+    <!--TODO: RUN A LOOP OVER THIS INCLUDE TO FETCH ALL THE REQUIRED DATA.-->
+    <div class="row">
+        <div ng-include="'detailView/views/tableView.html'"></div>
+    </div>
+</div>

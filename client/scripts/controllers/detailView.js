@@ -18,6 +18,8 @@ angular.module($snaphy.getModuleName())
         var modelId = $stateParams.id;
         //Schema of the database
         $scope.detailSchema = {};
+        //Data object containing the detailSchemaData block
+        $scope.detailSchemaData = {};
         //Initially enable the detail view button..
         $scope.disableDetailViewButton = false;
 
@@ -67,7 +69,10 @@ angular.module($snaphy.getModuleName())
             var databaseInstance = Database.loadDb(modelName);
             var promise = DetailViewResource.getDataFromServer($scope.detailSchema, modelId, databaseInstance);
             promise.then(function(success){
-                $scope.detailSchemaData = success;
+                success = success || {};
+                //NOTE: here using toJSON instead of raw object will remove unwanted properties like $promise from object keeping object value clean.
+                //Now copying the data..
+                angular.copy(success.toJSON(), $scope.detailSchemaData);
             }, function(error){
                 console.error(error);
             });

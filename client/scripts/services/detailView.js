@@ -210,8 +210,11 @@ angular.module($snaphy.getModuleName())
                 var schema = {
                     "relation": formSchema.relations
                 };
+
+                formModel = formModel || {};
+
                 var requestData = {
-                    data: formModel,
+                    data: formModel, //here toJSON remove unwanted property like $promise from object.
                     schema: schema
                 };
 
