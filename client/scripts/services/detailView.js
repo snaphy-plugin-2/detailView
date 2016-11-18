@@ -273,7 +273,8 @@ angular.module($snaphy.getModuleName())
             startLoadingbar: startLoadingbar,
             stopLoadingbar: stopLoadingbar,
             saveForm: saveForm,
-            copy: copy
+            copy: copy,
+            extend: extend
         };
 
     }]);

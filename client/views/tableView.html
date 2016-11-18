@@ -17,7 +17,7 @@
                         <tr style="cursor: pointer;">
 
                             <th style="word-wrap:break-word;"
-                                ng-if = "displayProperties(tableInstance.getCache().schema, header)"
+                                ng-if = "tableInstance.displayProperties(tableInstance.getCache().schema, header)"
                                 ng-repeat="header in tableInstance.getCache().schema.header"
                                 st-sort="{{header}}">
                                 {{header | removeDot}}
@@ -110,7 +110,7 @@
                             <!--<button ng-click="resetAll()" class="btn btn-minw btn-default pull-right" type="button">Reset</button>-->
                             <th class="text-center" style="width: 10%;word-wrap:break-word;">
                                 <!-- Clear ui variables.. -->
-                                <button ng-click="resetAll()" class="btn btn-minw btn-default pull-right" type="button">Clear</button>
+                                <button ng-click="tableInstance.resetAll()" class="btn btn-minw btn-default pull-right" type="button">Clear</button>
                             </th>
                         </tr>
                     </thead>
@@ -118,57 +118,56 @@
                     <tbody ng-show="!tableInstance.getCache().settings.isLoading">
                         <tr  ng-if="rowObject" ng-repeat="(rowId, rowObject) in tableInstance.getCache().displayed">
                             <!--Populating the table values and binding header with columnVal-->
-                            <td ng-if   = "displayProperties(tableInstance.getCache().schema, header)"
-                                ng-init = "colType = checkType(rowObject, header);
-                                           colValue    = getColValue(rowObject, header);
-                                           colKey      = getKey(rowObject, header);
-                                           tableConfig = findModelPropertyTableConfig(tableInstance.getCache().schema.tables, header);"
+                            <td ng-if   = "tableInstance.displayProperties(tableInstance.getCache().schema, header)"
+                                ng-init = "colType = tableInstance.checkType(rowObject, header);
+                                           colValue    = tableInstance.getColValue(rowObject, header);
+                                           colKey      = tableInstance.getKey(rowObject, header);
+                                           tableConfig = tableInstance.findModelPropertyTableConfig(tableInstance.getCache().schema.tables, header);"
                                 ng-repeat="header in tableInstance.getCache().schema.header"
                                 style="width:100px;word-wrap:break-word;">
 
 
-                                <span data-sort="{{getColValue(rowObject, header)}}"  data-filter="{{getColValue(rowObject, header)}}" ng-if="colType === '[object String]' || colType === '[object Boolean]'">
+                                <span data-sort="{{tableInstance.getColValue(rowObject, header)}}"  data-filter="{{tableInstance.getColValue(rowObject, header)}}" ng-if="colType === '[object String]' || colType === '[object Boolean]'">
                                     <span ng-if="tableConfig.onClick !== undefined">
                                         <!--Display link here..-->
-                                        <a ui-sref="{{tableConfig.onClick.state}}({{getParams(tableConfig.onClick.params, rowObject)}})">{{getColValue(rowObject, header)}}</a>
+                                        <a ui-sref="{{tableConfig.onClick.state}}({{tableInstance.getParams(tableConfig.onClick.params, rowObject)}})">{{tableInstance.getColValue(rowObject, header)}}</a>
                                     </span>
 
                                     <span ng-if="tableConfig.date">
                                         <!--Display link here..-->
-
                                         <span
-                                                data-order="{{dateInSeconds(rowObject, header)}}"
-                                                data-sort="{{dateInSeconds(rowObject, header)}}"
-                                                data-search="{{getColValue(rowObject, header)}}" >
-                                            {{toJsDate(getColValue(rowObject, header) )| date:'MM/dd/yyyy'}}
+                                                data-order="{{tableInstance.dateInSeconds(rowObject, header)}}"
+                                                data-sort="{{tableInstance.dateInSeconds(rowObject, header)}}"
+                                                data-search="{{tableInstance.getColValue(rowObject, header)}}" >
+                                            {{tableInstance.toJsDate(tableInstance.getColValue(rowObject, header) )| date:'MM/dd/yyyy'}}
                                         </span>
                                     </span>
 
                                     <span ng-init="labelType = tableConfig.tag[getColValue(rowObject, header)]" ng-if="tableConfig.tag !== undefined">
-                                        <span ng-if="getTagInfo(tableInstance.getCache().schema.tables, colKey, rowObject, header) !== undefined" class="label" ng-class="getTagInfo(tableInstance.getCache().schema.tables, colKey, rowObject, header)" >{{getColValue(rowObject, header)}}</span>
-                                        <span ng-if="getTagInfo(tableInstance.getCache().schema.tables, colKey, rowObject, header) === undefined" class="label label-default">{{getColValue(rowObject, header)}}</span>
+                                        <span ng-if="tableInstance.getTagInfo(tableInstance.getCache().schema.tables, colKey, rowObject, header) !== undefined" class="label" ng-class="tableInstance.getTagInfo(tableInstance.getCache().schema.tables, colKey, rowObject, header)" >{{tableInstance.getColValue(rowObject, header)}}</span>
+                                        <span ng-if="tableInstance.getTagInfo(tableInstance.getCache().schema.tables, colKey, rowObject, header) === undefined" class="label label-default">{{tableInstance.getColValue(rowObject, header)}}</span>
                                     </span>
                                     <span ng-if="tableConfig.tag === undefined && tableConfig.onClick === undefined && !tableConfig.date">
-                                        {{getColValue(rowObject, header) | cut:true:50:' ...'}}
+                                        {{tableInstance.getColValue(rowObject, header) | cut:true:50:' ...'}}
                                     </span>
                                 </span>
                                 <span ng-if="colType === '[object Number]'">
                                     <!--Do string populated work here...-->
-                                    {{getColValue(rowObject, header)}}
+                                    {{tableInstance.getColValue(rowObject, header)}}
                                 </span>
                                 <span ng-if="colType === '[object Array]'">
                                     <!--Do string populated work here...-->
                                     <!-- {{getColValue(rowObject, header)}} -->
                                     <ul>
-                                        <li ng-repeat="arrayData in getColValue(rowObject, header)">
-                                            <span ng-if="checkType(getColValue(rowObject, header), $index)  === '[object Object]'">
+                                        <li ng-repeat="arrayData in tableInstance.getColValue(rowObject, header)">
+                                            <span ng-if="tableInstance.checkType(tableInstance.getColValue(rowObject, header), $index)  === '[object Object]'">
                                                 <ul style="padding-left: 0px;">
                                                     <li ng-repeat="(key, arrValue) in arrayData">
                                                         {{arrValue}}
                                                     </li>
                                                 </ul>
                                             </span>
-                                            <span ng-if="checkType(getColValue(rowObject, header), $index)  !== '[object Object]'">
+                                            <span ng-if="tableInstance.checkType(getColValue(rowObject, header), $index)  !== '[object Object]'">
                                                 {{arrayData}}
                                             </span>
                                         </li>
@@ -180,21 +179,21 @@
 
                                 <!-- In case of Object or RELATED DATA hasOne or BelongTo type data.. -->
 
-                                <span ng-init="colType = getRelationColumnType (rowObject, header, colKey, colType);
-                                      colValue = getRelationColumnValue(rowObject, header, colKey);"
+                                <span ng-init="colType = tableInstance.getRelationColumnType (rowObject, header, colKey, colType);
+                                      colValue = tableInstance.getRelationColumnValue(rowObject, header, colKey);"
                                       ng-if="colType === '[object Object]'">
                                     <!--Do string populated work here...-->
                                     <ul ng-if="colType === '[object Object]'">
-                                        <li style="margin-top: 10px;" ng-init="objColType = checkType(colValue, key);" ng-repeat="(key, value) in colValue">
-                                            <span  ng-if="checkType(colValue, key) === '[object Object]'">
+                                        <li style="margin-top: 10px;" ng-init="objColType = tableInstance.checkType(colValue, key);" ng-repeat="(key, value) in colValue">
+                                            <span  ng-if="tableInstance.checkType(colValue, key) === '[object Object]'">
                                                 <ul>
-                                                    <li ng-repeat="(nestedKey, nestedValue) in getColValue(colValue, key)">
+                                                    <li ng-repeat="(nestedKey, nestedValue) in tableInstance.getColValue(colValue, key)">
                                                         <small><strong>{{nestedKey | capitalize}}</strong></small>: <span>{{nestedValue}}</span>
                                                     </li>
                                                 </ul>
                                             </span>
                                             <span ng-if="objColType !== '[object Object]'">
-                                               <small><strong>{{key | capitalize }}</strong></small>: {{getColValue(colValue, key)}}
+                                               <small><strong>{{key | capitalize }}</strong></small>: {{tableInstance.getColValue(colValue, key)}}
                                             </span>
 
 
@@ -203,25 +202,25 @@
                                     <span ng-if="colType !== '[object Object]'">
                                         <span ng-if="tableConfig.type === 'date'">
                                             <span
-                                                    data-order="{{dateInSeconds(rowObject, header, colKey)}}"
-                                                    data-sort="{{dateInSeconds(rowObject, header, colKey)}}"
+                                                    data-order="{{tableInstance.dateInSeconds(rowObject, header, colKey)}}"
+                                                    data-sort="{{tableInstance.dateInSeconds(rowObject, header, colKey)}}"
                                                     data-search="{{getRelationColumnValue(rowObject, header, colKey)}}" >
-                                                {{toJsDate(getRelationColumnValue(rowObject, header, colKey) )| date:'MM/dd/yyyy'}}
+                                                {{tableInstance.toJsDate(tableInstance.getRelationColumnValue(rowObject, header, colKey) )| date:'MM/dd/yyyy'}}
                                             </span>
                                         </span>
 
                                         <!-- Tag type -->
-                                        <span ng-init="labelType = tableConfig.tag[getRelationColumnValue(rowObject, header, colKey)]" ng-if="tableConfig.tag !== undefined">
-                                            <span ng-if="getRelatedDataTagInfo(tableConfig, colKey, rowObject, header) !== undefined" class="label" ng-class="getRelatedDataTagInfo(tableConfig, colKey, rowObject, header)" >
-                                                {{getRelationColumnValue(rowObject, header, colKey)}}
+                                        <span ng-init="labelType = tableConfig.tag[tableInstance.getRelationColumnValue(rowObject, header, colKey)]" ng-if="tableConfig.tag !== undefined">
+                                            <span ng-if="tableInstance.getRelatedDataTagInfo(tableConfig, colKey, rowObject, header) !== undefined" class="label" ng-class="tableInstance.getRelatedDataTagInfo(tableConfig, colKey, rowObject, header)" >
+                                                {{tableInstance.getRelationColumnValue(rowObject, header, colKey)}}
                                             </span>
-                                            <span ng-if="getRelatedDataTagInfo(tableConfig, colKey, rowObject, header) === undefined" class="label label-default">
-                                                {{getRelationColumnValue(rowObject, header, colKey)}}
+                                            <span ng-if="tableInstance.getRelatedDataTagInfo(tableConfig, colKey, rowObject, header) === undefined" class="label label-default">
+                                                {{tableInstance.getRelationColumnValue(rowObject, header, colKey)}}
                                             </span>
                                         </span>
                                         <!-- Default case -->
                                         <span ng-if="tableConfig.tag === undefined && !tableConfig.date">
-                                            {{getRelationColumnValue(rowObject, header, colKey)  | cut:true:50:' ...'}}
+                                            {{tableInstance.getRelationColumnValue(rowObject, header, colKey)  | cut:true:50:' ...'}}
                                         </span>
                                     </span>
                                 </span>
@@ -230,13 +229,13 @@
                             <!-- For adding table edit and delete options. -->
                             <td  class="text-center">
                                 <div class="btn-group">
-                                    <button class="btn btn-xs btn-default" type="button" data-toggle="modal" data-target="#addDataModal" title="Edit Data" ng-click="prepareDataForEdit(rowObject, tableInstance.getCache().schema.form)"><i class="fa fa-pencil"></i></button>
+                                    <button class="btn btn-xs btn-default" type="button" data-toggle="modal" data-target="#addDataModal" title="Edit Data" ng-click="tableInstance.prepareDataForEdit(rowObject, tableInstance.getCache().schema.form)"><i class="fa fa-pencil"></i></button>
                                     <button
                                             class="btn btn-xs btn-default"
                                             type="button"
                                             data-toggle="tooltip"
                                             title="Remove Data"
-                                            ng-click="deleteData(tableInstance.getCache().schema, rowObject)">
+                                            ng-click="tableInstance.deleteData(tableInstance.getCache().schema, rowObject)">
                                         <i class="fa fa-times"></i>
                                     </button>
                                 </div>
@@ -247,7 +246,7 @@
             </div>
             <div class="row">
                 <div class="col-md-6 ">
-                    <span class="text-left text-muted" style="vertical-align: middle;"> Total {{totalResults}} results | {{pagesReturned}} Pages.</span>
+                    <span class="text-left text-muted" style="vertical-align: middle;"> Total {{tableInstance.getCache().settings.totalResults}} results | {{tableInstance.getCache().settings.pagesReturned}} Pages.</span>
                 </div>
                 <div  class="col-md-6">
                     <span st-pagination="" st-items-by-page="5" class="text-right" style="vertical-align: middle;"></span>

@@ -5,8 +5,8 @@
 angular.module($snaphy.getModuleName())
 
 //Controller for detailViewControl ..
-.controller('detailViewControl', ['$scope', '$stateParams', 'Database', "DetailViewResource", "Resource", "ImageUploadingTracker",
-    function($scope, $stateParams, Database, DetailViewResource, Resource, ImageUploadingTracker) {
+.controller('detailViewControl', ['$scope', '$stateParams', 'Database', "DetailViewResource", "Resource", "ImageUploadingTracker", "SnaphyTemplate", "$timeout",
+    function($scope, $stateParams, Database, DetailViewResource, Resource, ImageUploadingTracker, SnaphyTemplate, $timeout) {
         //---------------------------------------GLOBAL VALUES-------------------------------
         //Checking if default templating feature is enabled..
         var defaultTemplate = $snaphy.loadSettings('detailView', "defaultTemplate");
@@ -22,6 +22,11 @@ angular.module($snaphy.getModuleName())
         $scope.relationSchema = {};
         //Initially enable the detail view button..
         $scope.disableDetailViewButton = false;
+        //Tracking the input plugin one time initialize...like select2, datepicker.
+        var inputPluginInitialize = {
+            date : false,
+            select2: false
+        };
         //-------------------------------------------------------------------------------------
 
 
@@ -58,6 +63,28 @@ angular.module($snaphy.getModuleName())
                 //TODO: Go to default template..
                 //Notfiy unknown location..
 
+            }
+        };
+
+
+        $scope.initializePlugin = function(pluginList){
+            if(inputPluginInitialize){
+                if(pluginList){
+                    if(pluginList.length){
+                        pluginList.forEach(function(pluginName){
+                            if(!inputPluginInitialize[pluginName]){
+                                if(pluginName === "select2"){
+                                    $('.js-select2').select2();
+                                }else if(pluginName === 'datepicker'){
+                                    App.initHelpers(['datepicker']);
+                                }else{
+                                    App.initHelpers([inputPluginInitialize[pluginName]]);
+                                }
+                                inputPluginInitialize[pluginName] = true;
+                            }
+                        });
+                    }
+                }
             }
         };
 
@@ -146,7 +173,7 @@ angular.module($snaphy.getModuleName())
                      * @param schema optional if provided the adds schema object..
                      */
                     var resetData = function(schema){
-                        angular.copy(relationDetail, cache[relationName]);
+                        DetailViewResource.extend(cache[relationName], relationDetail);
                         //Also add the relation type..
                         cache[relationName].relationType = relationType;
                         if(schema){
@@ -174,6 +201,8 @@ angular.module($snaphy.getModuleName())
                             //Reset the filter for tracking model where query for facilitating the model search filter..
                             watchRelatedModels: {},
                             saveFormData: {},
+                            //Creates a backup of data  to be performed while in edit mode..
+                            backupData: {},
                             //Inline search data object
                             //Store data of inline search associated with each table header.
                             inlineSearch:{}
@@ -183,6 +212,9 @@ angular.module($snaphy.getModuleName())
                     //Start memoization..
                     if(!cache[relationName]){
                         cache[relationName] = {};
+                        //These are those data that are not to be deleted on each data reset request..
+                        cache[relationName].persistentData = {};
+                        cache[relationName].resetFilterList = [];
                         resetData();
                     }
 
@@ -198,10 +230,10 @@ angular.module($snaphy.getModuleName())
                         resetData(schema);
 
                         //TODO: Uncomment it later..
-                        /*for (var i = 0; i < getCache.settings.resetFilterList.length; i++) {
+                        for (var i = 0; i < getCache().resetFilterList.length; i++) {
                             //Now call each method..
-                            getCache.settings.resetFilterList[i]();
-                        }*/
+                            getCache().resetFilterList[i]();
+                        }
                         //Set reset filter state to be true..
                         cache[relationName].settings.filterReset = true;
                         //Now reload the table again..
@@ -236,11 +268,11 @@ angular.module($snaphy.getModuleName())
 
 
 
-                        if (!dataContainer.settings.stCtrl && ctrl) {
-                            dataContainer.settings.stCtrl = ctrl;
+                        if (!dataContainer.persistentData.stCtrl && ctrl) {
+                            dataContainer.persistentData.stCtrl = ctrl;
                         }
-                        if (!tableState && dataContainer.settings.stCtrl) {
-                            dataContainer.settings.stCtrl.pipe();
+                        if (!tableState && dataContainer.persistentData.stCtrl) {
+                            dataContainer.persistentData.stCtrl.pipe();
                             return;
                         }
 
@@ -271,7 +303,6 @@ angular.module($snaphy.getModuleName())
                             Resource.getSchema(modelName, function(schema) {
                                 //Populate the schema..
                                 dataContainer.schema = schema;
-                                console.log(schema);
                                 dataContainer.where = dataContainer.where || {};
 
                                 Resource.getPage(start, number, tableState, modelName, schema, dataContainer.where).then(function(result) {
@@ -383,8 +414,8 @@ angular.module($snaphy.getModuleName())
                      * Event listener for adding reset button to the filters. To be called when reset button is called..
                      */
                     var addResetMethod = function(func) {
-                        getCache.resetFilterList = getCache.resetFilterList || [];
-                        getCache.resetFilterList.push(func);
+                        getCache().resetFilterList = getCache().resetFilterList || [];
+                        getCache().resetFilterList.push(func);
                     };
 
 
@@ -395,7 +426,7 @@ angular.module($snaphy.getModuleName())
                     var resetSavedForm = function(form) {
                         //reset the tracking bar..
                         ImageUploadingTracker.resetTracker();
-                        getCache.settings.saveFormData = {};
+                        getCache().settings.saveFormData = {};
                         if (form) {
                             form.$setPristine();
                         }
@@ -533,10 +564,10 @@ angular.module($snaphy.getModuleName())
 
 
                     //Clear the data showing in the table.
-                    $scope.clearData = function(){
-                        getCache.displayed.length = 0;
-                        getCache.settings.pagesReturned = 0;
-                        getCache.settings.totalResults = 0;
+                    var clearData = function(){
+                        getCache().displayed.length = 0;
+                        getCache().settings.pagesReturned = 0;
+                        getCache().settings.totalResults = 0;
 
                     };
 
@@ -559,25 +590,25 @@ angular.module($snaphy.getModuleName())
 
 
                     var addWhereQuery = function(model, columnName, filterType, schema){
-                        getCache.settings.resetPage = true;
-                        getCache.where = getCache.where  || {};
+                        getCache().settings.resetPage = true;
+                        getCache().where = getCache().where  || {};
                         if(filterType === "select"){
                             if(model){
-                                getCache.where = prepareWhereQuery(getCache.where, filterType, columnName, model);
+                                getCache().where = prepareWhereQuery(getCache().where, filterType, columnName, model);
                             }
 
                             //Now redraw the table..
                             refreshData();
                         }else if (filterType === "number") {
                             if(model){
-                                getCache.where = prepareWhereQuery(getCache.where, filterType, columnName, model);
+                                getCache().where = prepareWhereQuery(getCache().where, filterType, columnName, model);
                             }
                             //Now redraw the table..
                             refreshData();
                         }
                         else if (filterType === "date") {
                             if(model){
-                                getCache.where = prepareWhereQuery(getCache.where, filterType, columnName, model);
+                                getCache().where = prepareWhereQuery(getCache().where, filterType, columnName, model);
 
                             }
                             //Now redraw the table..
@@ -590,7 +621,7 @@ angular.module($snaphy.getModuleName())
                                     var keyName = columnName.replace(/\./, "_");
                                     if(schema.tables[keyName]){
                                         //Define a $scope variable for watching query related to..each models.
-                                        getCache.settings.watchRelatedModels = getCache.settings.watchRelatedModels || {};
+                                        getCache().settings.watchRelatedModels = getCache().settings.watchRelatedModels || {};
 
                                         var tableProp = schema.tables[keyName];
                                         var modelName = tableProp.relatedModel;
@@ -598,16 +629,16 @@ angular.module($snaphy.getModuleName())
                                         var searchProp = tableProp.propertyName;
                                         //Now first find the related values then add where query..
                                         var dbService = Database.loadDb(modelName);
-                                        getCache.settings.watchRelatedModels[modelName] = getCache.settings.watchRelatedModels[modelName] || {};
-                                        getCache.settings.watchRelatedModels[modelName].filter = getCache.settings.watchRelatedModels[modelName].filter || {};
-                                        getCache.settings.watchRelatedModels[modelName].filter.where  = getCache.settings.watchRelatedModels[modelName].filter.where || {};
-                                        getCache.settings.watchRelatedModels[modelName].filter.limit  = 10;
-                                        getCache.settings.watchRelatedModels[modelName].filter.fields =  { id: true };
+                                        getCache().settings.watchRelatedModels[modelName] = getCache().settings.watchRelatedModels[modelName] || {};
+                                        getCache().settings.watchRelatedModels[modelName].filter = getCache().settings.watchRelatedModels[modelName].filter || {};
+                                        getCache().settings.watchRelatedModels[modelName].filter.where  = getCache().settings.watchRelatedModels[modelName].filter.where || {};
+                                        getCache().settings.watchRelatedModels[modelName].filter.limit  = 10;
+                                        getCache().settings.watchRelatedModels[modelName].filter.fields =  { id: true };
                                         //Preparing the where query..
-                                        getCache.settings.watchRelatedModels[modelName].filter.where = prepareWhereQuery(getCache.settings.watchRelatedModels[modelName].filter.where, tableProp.type, searchProp, model);
+                                        getCache().settings.watchRelatedModels[modelName].filter.where = prepareWhereQuery(getCache().settings.watchRelatedModels[modelName].filter.where, tableProp.type, searchProp, model);
 
                                         dbService.find({
-                                            filter: getCache.settings.watchRelatedModels[modelName].filter
+                                            filter: getCache().settings.watchRelatedModels[modelName].filter
                                         }, function(values){
                                             //get the ids list..
                                             if(values){
@@ -627,7 +658,7 @@ angular.module($snaphy.getModuleName())
                                                         idList = arrayUnique(idList);
 
                                                         //PREPARE THE WHERE QUERY..
-                                                        getCache.where[foreignKey] = {
+                                                        getCache().where[foreignKey] = {
                                                             inq: idList
                                                         };
                                                         //Now redraw the table..
@@ -655,6 +686,223 @@ angular.module($snaphy.getModuleName())
                         }
                     };
 
+                    //Check type of the table..
+                    var checkType = function(rowObject, columnHeader) {
+                        var colValue = getColValue(rowObject, columnHeader);
+                        return Object.prototype.toString.call(colValue);
+                    };
+
+                    /**
+                     * change prop like access_level to access only
+                     * Get the key or the relationship name.
+                     * @param rowObject
+                     * @param columnHeader
+                     * @returns {*}
+                     */
+                    var getKey = function(rowObject, columnHeader) {
+                        var keyName;
+                        if (rowObject) {
+                            if (rowObject[columnHeader] !== undefined) {
+                                keyName = columnHeader;
+                            } else {
+                                //Its a relational header properties name... map the header.. replace `customer_name` to name
+                                var patt = /\.[A-Z0-9a-z]+$/;
+                                keyName = columnHeader.replace(patt, '');
+                            }
+                        }
+                        return keyName;
+                    };
+
+
+
+                    var getColValue = function(rowObject, columnHeader) {
+                        var key = getKey(rowObject, columnHeader);
+
+                        return key !== undefined ? rowObject[key] : null;
+                    };
+
+
+                    var dateInSeconds = function(rowObject, columnHeader, colKey) {
+                        var date;
+                        if(colKey){
+                            //For related type object..
+                            var colValue = getRelationColumnValue(rowObject, columnHeader, colKey);
+                            date = toJsDate(colValue);
+                            if(!date){
+                                return null;
+                            }else{
+                                return date.getTime();
+                            }
+                        }
+                        else{
+                            var val = getColValue(rowObject, columnHeader);
+                            date = new Date(val);
+                            return date.getTime();
+                        }
+                    };
+
+                    //Convert string to javascript date type object..
+                    var toJsDate = function(str) {
+                        if (!str) {
+                            return null;
+                        }
+                        return new Date(str);
+                    };
+
+
+                    //TO be used in tables..
+                    var getRelationColumnValue = function(rowObject, header, colKey) {
+                        var colValue = getColValue(rowObject, header);
+                        var isBelongToRelation = header !== colKey;
+                        var hasOneRelationPropName = getColumnKey(header);
+                        return (isBelongToRelation) ? colValue[hasOneRelationPropName] : colValue;
+                    };
+
+                    /**
+                     * change prop like access-level to level only
+                     * Get the model properties name on the case of belongsTo or hasOne relationships..
+                     * @param columnHeader
+                     */
+                    var getColumnKey = function(columnHeader) {
+                        //var keyName;
+                        var patt = /^[A-Z0-9a-z-$]+\./;
+                        return columnHeader.replace(patt, '');
+                    };
+
+
+                    var getRelationColumnType = function(rowObject, header, colKey, initialColumnType) {
+                        var colValue = getRelationColumnValue(rowObject, header, colKey);
+                        var hasOneRelationPropName = getColumnKey(header);
+                        var isBelongToRelation = header !== colKey;
+                        return (isBelongToRelation) ? checkType(colValue, hasOneRelationPropName) : initialColumnType;
+                    };
+
+
+
+                    /**
+                     * Find model property for the table configuration from the config file
+                     * @param  {object} configModelTableObj [description]
+                     * @param  {string} propertyName        [description]
+                     * @return {object}                     [description]
+                     */
+                    var findModelPropertyTableConfig = function(configModelTableObj, propertyName) {
+                        //Convert dot to underscore..
+                        var propertyName = convertToUnderScore(propertyName);
+                        //get the property parameters..
+                        var ModalpropertyObj = configModelTableObj;
+                        if (ModalpropertyObj === undefined) {
+                            return null;
+                        }
+                        if (ModalpropertyObj[propertyName] !== undefined) {
+                            return ModalpropertyObj[propertyName];
+                        }
+                        return null;
+                    };
+
+                    // Used in  the automata to get the table values..
+                    var getTagInfo = function(tableSchema, colKey, rowObject, header) {
+                        var tableConfig = findModelPropertyTableConfig(tableSchema, colKey);
+                        var colValue = getColValue(rowObject, header);
+                        return tableConfig.tag[colValue];
+                    };
+
+                    /*Get related data tag info*/
+                    var getRelatedDataTagInfo = function(tableConfig, colKey, rowObject, header){
+                        var colVal = getRelationColumnValue(rowObject, header, colKey);
+                        if(tableConfig){
+                            if(tableConfig.tag){
+                                var tagData = tableConfig.tag[colVal];
+                                return tagData;
+                            }
+                        }
+                    };
+
+
+                    /**
+                     * Initialize the edit form data from editing the form.
+                     * @param  {[type]} data [description]
+                     * @return {[type]}           [description]
+                     */
+                    var prepareDataForEdit = function(data, form) {
+                        //First reset the previous data..
+                        resetSavedForm(form);
+                        //First create a backup of the the data in case of rollback changes/cancel
+                        getCache().settings.backupData = angular.copy(data);
+                        getCache().settings.saveFormData = data;
+                    };
+
+
+                    /**
+                     * For finding array index of the data of array of objects with properties id..
+                     * @return {[type]} [description]
+                     */
+                    var getArrayIndex = function(arrayData, id) {
+                        for (var i = 0; i < arrayData.length; i++) {
+                            var element = arrayData[i];
+                            if (element.id.toString().trim() === id.toString().trim()) {
+                                return i;
+                            }
+                        }
+                        return null;
+                    };
+
+
+
+                    /**
+                     * Method for deleting data from database and row of a table..
+                     * @param  {Object} formStructure [schema of the model.]
+                     * @param {Object} data        [Data going to be deleted]
+                     */
+                    var deleteData = function(formStructure, data) {
+                        //get the model service..
+                        var baseDatabase = Database.loadDb(formStructure.model);
+                        $scope.dialog = {
+                            message: "Do you want to delete the data?",
+                            title: "Confirm Delete",
+                            onCancel: function() {
+                                /*Do nothing..*/
+                                //Reset the dialog bar..
+                                $scope.dialog.show = false;
+                            },
+                            onConfirm: function() {
+                                var mainArrayIndex = getArrayIndex(getCache().displayed, data.id);
+                                var oldDeletedData = getCache().displayed[mainArrayIndex];
+
+                                //Reset the dialoag bar..
+                                $scope.dialog.show = false;
+                                baseDatabase.deleteById({
+                                    id: data.id
+                                }, function() {
+                                    /*Delete the data from the database..*/
+                                    SnaphyTemplate.notify({
+                                        message: "Data successfully deleted.",
+                                        type: 'success',
+                                        icon: 'fa fa-check',
+                                        align: 'left'
+                                    });
+                                }, function() {
+                                    $timeout(function() {
+                                        //Attach the data again..
+                                        getCache().displayed.push(oldDeletedData);
+                                    });
+
+                                    //console.error(respHeader);
+                                    SnaphyTemplate.notify({
+                                        message: "Error deleting data.",
+                                        type: 'danger',
+                                        icon: 'fa fa-times',
+                                        align: 'left'
+                                    });
+                                });
+                                //Now delete the data..
+                                getCache().displayed.splice(mainArrayIndex, 1);
+                            },
+                            show: true
+                        };
+
+                    };
+
+
 
                     return {
                         getCache: getCache,
@@ -669,7 +917,19 @@ angular.module($snaphy.getModuleName())
                         displayProperties: displayProperties,
                         showFilterType: showFilterType,
                         addWhereQuery: addWhereQuery,
-                        getOptions: getOptions
+                        getOptions: getOptions,
+                        checkType: checkType,
+                        getColValue: getColValue,
+                        getKey: getKey,
+                        findModelPropertyTableConfig: findModelPropertyTableConfig,
+                        dateInSeconds: dateInSeconds,
+                        toJsDate: toJsDate,
+                        getTagInfo: getTagInfo,
+                        getRelationColumnType: getRelationColumnType,
+                        getRelationColumnValue: getRelationColumnValue,
+                        getRelatedDataTagInfo: getRelatedDataTagInfo,
+                        prepareDataForEdit: prepareDataForEdit,
+                        deleteData: deleteData
 
                     };
                 }
