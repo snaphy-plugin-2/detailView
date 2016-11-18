@@ -3,6 +3,43 @@
     <div ng-cloak class="block " ng-class="{'block-opt-refresh': tableInstance.getCache().settings.isLoading}" >
         <div class="block-header">
             <ul class="block-options">
+                <li class="dropdown">
+                    <button type="button" data-toggle="dropdown"><i class="si si-printer"></i> Print <span class="caret"></span> </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li class="dropdown-header">Print Select</li>
+                        <li>
+                            <a tabindex="-1" href="javascript:void(0)">Print 10 rows</a>
+                        </li>
+                        <li>
+                            <a tabindex="-1" href="javascript:void(0)">Print 100 rows</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">More</li>
+                        <li>
+                            <a tabindex="-1" href="javascript:void(0)">Print all data</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <button type="button" data-toggle="dropdown"><i class="si si-share-alt"></i> Export <span class="caret"></span></button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li class="dropdown-header">Export Select</li>
+                        <li>
+                            <a tabindex="-1" href="javascript:void(0)">Export 10 rows</a>
+                        </li>
+                        <li>
+                            <a tabindex="-1" href="javascript:void(0)">Export 100 rows</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">More</li>
+                        <li>
+                            <a tabindex="-1" href="javascript:void(0)">Export all data</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <button type="button" data-target="#{{editTableId}}"   ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)" data-toggle="modal" title="Add {{tableInstance.getCache().modelName | camelCaseToSpaces}}" data-original-title="Add {{tableInstance.getCache().modelName | camelCaseToSpaces}}"><i class="si si-plus"></i></button>
+                </li>
                 <li>
                     <button ng-click="tableInstance.resetAll()" type="button" data-toggle="block-option" data-action="refresh_toggle"  ><i class="si si-refresh"></i></button>
                 </li>
@@ -14,117 +51,117 @@
             <div  class="table-responsive" style="overflow-x: hidden;">
                 <table ng-attr-id="{{tableId}}"  class="table table-bordered  table-striped js-dataTable-full">
                     <thead>
-                        <tr style="cursor: pointer;">
+                    <tr style="cursor: pointer;">
 
-                            <th style="word-wrap:break-word;"
-                                ng-if = "tableInstance.displayProperties(tableInstance.getCache().schema, header)"
-                                ng-repeat="header in tableInstance.getCache().schema.header"
-                                st-sort="{{header}}">
-                                {{header | removeDot | underscoreless}}
-                            </th>
-                            <th class="text-center" style="width: 10%;word-wrap:break-word;">Actions</th>
-                        </tr>
+                        <th style="word-wrap:break-word;"
+                            ng-if = "tableInstance.displayProperties(tableInstance.getCache().schema, header)"
+                            ng-repeat="header in tableInstance.getCache().schema.header"
+                            st-sort="{{header}}">
+                            {{header | removeDot | underscoreless}}
+                        </th>
+                        <th class="text-center" style="width: 10%;word-wrap:break-word;">Actions</th>
+                    </tr>
 
-                        <tr >
-                            <th style="word-wrap:break-word;" ng-if = "tableInstance.displayProperties(tableInstance.getCache().schema, header)" ng-repeat="header in tableInstance.getCache().schema.header">
-                                <input
-                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'text', tableInstance.getCache().settings.inlineSearch, header)"
-                                        class="form-control"
-                                        ng-model="tableInstance.getCache().settings.inlineSearch[header]"
-                                        ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'text'"
-                                        type="text"
-                                        st-search="{{header}}"
-                                />
-                                <select
-                                        ng-change="addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header,  'select')"
-                                        ng-model="tableInstance.getCache().settings.inlineSearch[header]"
-                                        ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'select'"
-                                        class="js-select2 form-control"
-                                        data-placeholder="Choose one.."
-                                        snaphy-ra-load-select
-                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'select', tableInstance.getCache().settings.inlineSearch, header)">
-                                    <option value="" >All</option>
-                                    <option  ng-repeat="option in getOptions(header, tableInstance.getCache().schema)" value="{{option}}">{{option}}</option>
-                                </select>
-                                <input
-                                        ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header, 'date')"
-                                        ng-model="tableInstance.getCache().settings.inlineSearch[header]"
-                                        snaphy-ra-load-date
-                                        ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'date'"
-                                        class="js-datepicker form-control"
-                                        type="text"
-                                        data-date-format="mm/dd/yy"
-                                        placeholder="mm/dd/yy"
-                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'date', tableInstance.getCache().settings.inlineSearch, header)"
-                                />
-                                <input
-                                        ng-model="tableInstance.getCache().settings.inlineSearch[header]"
-                                        ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header, 'number')"
-                                        class="form-control"
-                                        ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'number'"
-                                        type="number"
-                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'number', tableInstance.getCache().settings.inlineSearch, header)"
-                                />
+                    <tr >
+                        <th style="word-wrap:break-word;" ng-if = "tableInstance.displayProperties(tableInstance.getCache().schema, header)" ng-repeat="header in tableInstance.getCache().schema.header">
+                            <input
+                                    ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'text', tableInstance.getCache().settings.inlineSearch, header)"
+                                    class="form-control"
+                                    ng-model="tableInstance.getCache().settings.inlineSearch[header]"
+                                    ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'text'"
+                                    type="text"
+                                    st-search="{{header}}"
+                            />
+                            <select
+                                    ng-change="addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header,  'select')"
+                                    ng-model="tableInstance.getCache().settings.inlineSearch[header]"
+                                    ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'select'"
+                                    class="js-select2 form-control"
+                                    data-placeholder="Choose one.."
+                                    snaphy-ra-load-select
+                                    ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'select', tableInstance.getCache().settings.inlineSearch, header)">
+                                <option value="" >All</option>
+                                <option  ng-repeat="option in getOptions(header, tableInstance.getCache().schema)" value="{{option}}">{{option}}</option>
+                            </select>
+                            <input
+                                    ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header, 'date')"
+                                    ng-model="tableInstance.getCache().settings.inlineSearch[header]"
+                                    snaphy-ra-load-date
+                                    ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'date'"
+                                    class="js-datepicker form-control"
+                                    type="text"
+                                    data-date-format="mm/dd/yy"
+                                    placeholder="mm/dd/yy"
+                                    ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'date', tableInstance.getCache().settings.inlineSearch, header)"
+                            />
+                            <input
+                                    ng-model="tableInstance.getCache().settings.inlineSearch[header]"
+                                    ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header, 'number')"
+                                    class="form-control"
+                                    ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'number'"
+                                    type="number"
+                                    ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'number', tableInstance.getCache().settings.inlineSearch, header)"
+                            />
 
 
-                                <!--HANDLING FOR SPECIAL RELATED CASE MODEL SEARCH..-->
-                                <input
-                                        ng-model="tableInstance.getCache().settings.inlineSearch[header]"
-                                        ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header, 'related.text', tableInstance.getCache().schema)"
-                                        class="form-control"
-                                        ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'related.text'"
+                            <!--HANDLING FOR SPECIAL RELATED CASE MODEL SEARCH..-->
+                            <input
+                                    ng-model="tableInstance.getCache().settings.inlineSearch[header]"
+                                    ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header, 'related.text', tableInstance.getCache().schema)"
+                                    class="form-control"
+                                    ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'related.text'"
 
-                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'related', tableInstance.getCache().settings.inlineSearch, header)"
-                                />
-                                <select
-                                        ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header,  'related.select', tableInstance.getCache().schema)"
-                                        ng-model="tableInstance.getCache().settings.inlineSearch[header]"
-                                        ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'related.select'"
-                                        class="js-select2 form-control"
-                                        data-placeholder="Choose one.."
-                                        snaphy-ra-load-select
-                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'select', tableInstance.getCache().settings.inlineSearch, header)">
-                                    <option value="" >All</option>
-                                    <option  ng-repeat="option in tableInstance.getOptions(header, tableInstance.getCache().schema)" value="{{option}}">{{option}}</option>
-                                </select>
-                                <input
-                                        ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header, 'related.date', tableInstance.getCache().schema)"
-                                        ng-model="tableInstance.getCache().settings.inlineSearch[header]"
-                                        snaphy-ra-load-date
-                                        ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'related.date'"
-                                        class="js-datepicker form-control"
-                                        type="text"
-                                        data-date-format="mm/dd/yy"
-                                        placeholder="mm/dd/yy"
-                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'date', tableInstance.getCache().settings.inlineSearch, header)"
-                                />
-                                <input
-                                        ng-model="tableInstance.getCache().settings.inlineSearch[header]"
-                                        ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header, 'related.number', tableInstance.getCache().schema)"
-                                        class="form-control"
-                                        ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'related.number'"
-                                        type="number"
-                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'number', tableInstance.getCache().settings.inlineSearch, header)"
-                                />
-                            </th>
-                            <!--<button ng-click="resetAll()" class="btn btn-minw btn-default pull-right" type="button">Reset</button>-->
-                            <th class="text-center" style="width: 10%;word-wrap:break-word;">
-                                <!-- Clear ui variables.. -->
-                                <button ng-click="tableInstance.resetAll()" class="btn btn-minw btn-default pull-right" type="button">Clear</button>
-                            </th>
-                        </tr>
+                                    ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'related', tableInstance.getCache().settings.inlineSearch, header)"
+                            />
+                            <select
+                                    ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header,  'related.select', tableInstance.getCache().schema)"
+                                    ng-model="tableInstance.getCache().settings.inlineSearch[header]"
+                                    ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'related.select'"
+                                    class="js-select2 form-control"
+                                    data-placeholder="Choose one.."
+                                    snaphy-ra-load-select
+                                    ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'select', tableInstance.getCache().settings.inlineSearch, header)">
+                                <option value="" >All</option>
+                                <option  ng-repeat="option in tableInstance.getOptions(header, tableInstance.getCache().schema)" value="{{option}}">{{option}}</option>
+                            </select>
+                            <input
+                                    ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header, 'related.date', tableInstance.getCache().schema)"
+                                    ng-model="tableInstance.getCache().settings.inlineSearch[header]"
+                                    snaphy-ra-load-date
+                                    ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'related.date'"
+                                    class="js-datepicker form-control"
+                                    type="text"
+                                    data-date-format="mm/dd/yy"
+                                    placeholder="mm/dd/yy"
+                                    ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'date', tableInstance.getCache().settings.inlineSearch, header)"
+                            />
+                            <input
+                                    ng-model="tableInstance.getCache().settings.inlineSearch[header]"
+                                    ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header, 'related.number', tableInstance.getCache().schema)"
+                                    class="form-control"
+                                    ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'related.number'"
+                                    type="number"
+                                    ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'number', tableInstance.getCache().settings.inlineSearch, header)"
+                            />
+                        </th>
+                        <!--<button ng-click="resetAll()" class="btn btn-minw btn-default pull-right" type="button">Reset</button>-->
+                        <th class="text-center" style="width: 10%;word-wrap:break-word;">
+                            <!-- Clear ui variables.. -->
+                            <button ng-click="tableInstance.resetAll()" class="btn btn-minw btn-default pull-right" type="button">Clear</button>
+                        </th>
+                    </tr>
                     </thead>
 
                     <tbody ng-show="!tableInstance.getCache().settings.isLoading">
-                        <tr  ng-if="rowObject" ng-repeat="(rowId, rowObject) in tableInstance.getCache().displayed">
-                            <!--Populating the table values and binding header with columnVal-->
-                            <td ng-if   = "tableInstance.displayProperties(tableInstance.getCache().schema, header)"
-                                ng-init = "colType = tableInstance.checkType(rowObject, header);
+                    <tr  ng-if="rowObject" ng-repeat="(rowId, rowObject) in tableInstance.getCache().displayed">
+                        <!--Populating the table values and binding header with columnVal-->
+                        <td ng-if   = "tableInstance.displayProperties(tableInstance.getCache().schema, header)"
+                            ng-init = "colType = tableInstance.checkType(rowObject, header);
                                            colValue    = tableInstance.getColValue(rowObject, header);
                                            colKey      = tableInstance.getKey(rowObject, header);
                                            tableConfig = tableInstance.findModelPropertyTableConfig(tableInstance.getCache().schema.tables, header);"
-                                ng-repeat="header in tableInstance.getCache().schema.header"
-                                style="width:100px;word-wrap:break-word;">
+                            ng-repeat="header in tableInstance.getCache().schema.header"
+                            style="width:100px;word-wrap:break-word;">
 
 
                                 <span data-sort="{{tableInstance.getColValue(rowObject, header)}}"  data-filter="{{tableInstance.getColValue(rowObject, header)}}" ng-if="colType === '[object String]' || colType === '[object Boolean]'">
@@ -177,7 +214,7 @@
 
 
 
-                                <!-- In case of Object or RELATED DATA hasOne or BelongTo type data.. -->
+                            <!-- In case of Object or RELATED DATA hasOne or BelongTo type data.. -->
 
                                 <span ng-init="colType = tableInstance.getRelationColumnType (rowObject, header, colKey, colType);
                                       colValue = tableInstance.getRelationColumnValue(rowObject, header, colKey);"
@@ -218,29 +255,35 @@
                                                 {{tableInstance.getRelationColumnValue(rowObject, header, colKey)}}
                                             </span>
                                         </span>
+
+                                        <span ng-if="tableConfig.onClick !== undefined">
+                                            <!--Display link here..-->
+                                            <a ui-sref="{{tableConfig.onClick.state}}({{tableInstance.getParams(tableConfig.onClick.params, rowObject)}})">{{tableInstance.getRelationColumnValue(rowObject, header, colKey)}}</a>
+                                        </span>
+
                                         <!-- Default case -->
-                                        <span ng-if="tableConfig.tag === undefined && !tableConfig.date">
+                                        <span ng-if="tableConfig.tag === undefined && !tableConfig.date && !tableConfig.onClick">
                                             {{tableInstance.getRelationColumnValue(rowObject, header, colKey)  | cut:true:50:' ...'}}
                                         </span>
                                     </span>
                                 </span>
 
-                            </td>
-                            <!-- For adding table edit and delete options. -->
-                            <td  class="text-center">
-                                <div class="btn-group">
-                                    <button class="btn btn-xs btn-default" type="button" data-toggle="modal" data-target="#{{editTableId}}" title="Edit Data" ng-click="tableInstance.prepareDataForEdit(rowObject, tableInstance.getCache().schema.form)"><i class="fa fa-pencil"></i></button>
-                                    <button
-                                            class="btn btn-xs btn-default"
-                                            type="button"
-                                            data-toggle="tooltip"
-                                            title="Remove Data"
-                                            ng-click="tableInstance.deleteData(tableInstance.getCache().schema, rowObject)">
-                                        <i class="fa fa-times"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                        </td>
+                        <!-- For adding table edit and delete options. -->
+                        <td  class="text-center">
+                            <div class="btn-group">
+                                <button class="btn btn-xs btn-default" type="button" data-toggle="modal" data-target="#{{editTableId}}" title="Edit Data" ng-click="tableInstance.prepareDataForEdit(rowObject, tableInstance.getCache().schema.form)"><i class="fa fa-pencil"></i></button>
+                                <button
+                                        class="btn btn-xs btn-default"
+                                        type="button"
+                                        data-toggle="tooltip"
+                                        title="Remove Data"
+                                        ng-click="tableInstance.deleteData(tableInstance.getCache().schema, rowObject)">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -281,7 +324,7 @@
             </div>
             <!-- ng disabled removed as now ng-disabled="!enableButton(schema.form)" -->
             <div class="modal-footer">
-                <button data-target="#addDataModal"  class="btn btn-sm btn-default "  type="button" data-dismiss="modal">Close</button>
+                <button data-target="#{{editTableId}}"   class="btn btn-sm btn-default "  type="button" data-dismiss="modal">Close</button>
                 <button class="btn btn-sm btn-default "  style="margin-right:20px;" type="button" ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)">Reset data</button>
                 <button
 
