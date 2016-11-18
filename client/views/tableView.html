@@ -20,7 +20,7 @@
                                 ng-if = "tableInstance.displayProperties(tableInstance.getCache().schema, header)"
                                 ng-repeat="header in tableInstance.getCache().schema.header"
                                 st-sort="{{header}}">
-                                {{header | removeDot}}
+                                {{header | removeDot | underscoreless}}
                             </th>
                             <th class="text-center" style="width: 10%;word-wrap:break-word;">Actions</th>
                         </tr>

@@ -594,25 +594,23 @@ angular.module($snaphy.getModuleName())
                         if(filterType === "select"){
                             if(model){
                                 getCache().where = prepareWhereQuery(getCache().where, filterType, columnName, model);
+                                //Now redraw the table..
+                                refreshData();
                             }
-
-                            //Now redraw the table..
-                            refreshData();
                         }else if (filterType === "number") {
                             if(model){
                                 getCache().where = prepareWhereQuery(getCache().where, filterType, columnName, model);
+                                //Now redraw the table..
+                                refreshData();
                             }
-                            //Now redraw the table..
-                            refreshData();
+
                         }
                         else if (filterType === "date") {
                             if(model){
                                 getCache().where = prepareWhereQuery(getCache().where, filterType, columnName, model);
-
+                                //Now redraw the table..
+                                refreshData();
                             }
-                            //Now redraw the table..
-                            refreshData();
-
                         }else if(/^related.+/.test(filterType)){
                             if(model){
                                 //First find the data....
