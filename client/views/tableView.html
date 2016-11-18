@@ -1,4 +1,4 @@
-<div  class="col-sm-12" ng-init="tableInstance = tableViewInit(relationDetail, relationType)">
+<div  class="col-sm-12 content" ng-init="tableInstance = tableViewInit(relationDetail, relationType); editTableId = tableInstance.getCache().relationName + 'EditTable'">
     <!-- Dynamic Table Full -->
     <div ng-cloak class="block " ng-class="{'block-opt-refresh': tableInstance.getCache().settings.isLoading}" >
         <div class="block-header">
@@ -28,7 +28,7 @@
                         <tr >
                             <th style="word-wrap:break-word;" ng-if = "tableInstance.displayProperties(tableInstance.getCache().schema, header)" ng-repeat="header in tableInstance.getCache().schema.header">
                                 <input
-                                        ng-init="tableInstance.addInlineFilterResetMethod(tableId, 'text', tableInstance.getCache().settings.inlineSearch, header)"
+                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'text', tableInstance.getCache().settings.inlineSearch, header)"
                                         class="form-control"
                                         ng-model="tableInstance.getCache().settings.inlineSearch[header]"
                                         ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'text'"
@@ -42,7 +42,7 @@
                                         class="js-select2 form-control"
                                         data-placeholder="Choose one.."
                                         snaphy-ra-load-select
-                                        ng-init="tableInstance.addInlineFilterResetMethod(tableId, 'select', tableInstance.getCache().settings.inlineSearch, header)">
+                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'select', tableInstance.getCache().settings.inlineSearch, header)">
                                     <option value="" >All</option>
                                     <option  ng-repeat="option in getOptions(header, tableInstance.getCache().schema)" value="{{option}}">{{option}}</option>
                                 </select>
@@ -55,7 +55,7 @@
                                         type="text"
                                         data-date-format="mm/dd/yy"
                                         placeholder="mm/dd/yy"
-                                        ng-init="tableInstance.addInlineFilterResetMethod(tableId, 'date', tableInstance.getCache().settings.inlineSearch, header)"
+                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'date', tableInstance.getCache().settings.inlineSearch, header)"
                                 />
                                 <input
                                         ng-model="tableInstance.getCache().settings.inlineSearch[header]"
@@ -63,7 +63,7 @@
                                         class="form-control"
                                         ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'number'"
                                         type="number"
-                                        ng-init="tableInstance.addInlineFilterResetMethod(tableId, 'number', tableInstance.getCache().settings.inlineSearch, header)"
+                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'number', tableInstance.getCache().settings.inlineSearch, header)"
                                 />
 
 
@@ -74,7 +74,7 @@
                                         class="form-control"
                                         ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'related.text'"
 
-                                        ng-init="tableInstance.addInlineFilterResetMethod(tableId, 'related', tableInstance.getCache().settings.inlineSearch, header)"
+                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'related', tableInstance.getCache().settings.inlineSearch, header)"
                                 />
                                 <select
                                         ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header,  'related.select', tableInstance.getCache().schema)"
@@ -83,7 +83,7 @@
                                         class="js-select2 form-control"
                                         data-placeholder="Choose one.."
                                         snaphy-ra-load-select
-                                        ng-init="tableInstance.addInlineFilterResetMethod(tableId, 'select', tableInstance.getCache().settings.inlineSearch, header)">
+                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'select', tableInstance.getCache().settings.inlineSearch, header)">
                                     <option value="" >All</option>
                                     <option  ng-repeat="option in tableInstance.getOptions(header, tableInstance.getCache().schema)" value="{{option}}">{{option}}</option>
                                 </select>
@@ -96,7 +96,7 @@
                                         type="text"
                                         data-date-format="mm/dd/yy"
                                         placeholder="mm/dd/yy"
-                                        ng-init="tableInstance.addInlineFilterResetMethod(tableId, 'date', tableInstance.getCache().settings.inlineSearch, header)"
+                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'date', tableInstance.getCache().settings.inlineSearch, header)"
                                 />
                                 <input
                                         ng-model="tableInstance.getCache().settings.inlineSearch[header]"
@@ -104,7 +104,7 @@
                                         class="form-control"
                                         ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'related.number'"
                                         type="number"
-                                        ng-init="tableInstance.addInlineFilterResetMethod(tableId, 'number', tableInstance.getCache().settings.inlineSearch, header)"
+                                        ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'number', tableInstance.getCache().settings.inlineSearch, header)"
                                 />
                             </th>
                             <!--<button ng-click="resetAll()" class="btn btn-minw btn-default pull-right" type="button">Reset</button>-->
@@ -229,7 +229,7 @@
                             <!-- For adding table edit and delete options. -->
                             <td  class="text-center">
                                 <div class="btn-group">
-                                    <button class="btn btn-xs btn-default" type="button" data-toggle="modal" data-target="#addDataModal" title="Edit Data" ng-click="tableInstance.prepareDataForEdit(rowObject, tableInstance.getCache().schema.form)"><i class="fa fa-pencil"></i></button>
+                                    <button class="btn btn-xs btn-default" type="button" data-toggle="modal" data-target="#{{editTableId}}" title="Edit Data" ng-click="tableInstance.prepareDataForEdit(rowObject, tableInstance.getCache().schema.form)"><i class="fa fa-pencil"></i></button>
                                     <button
                                             class="btn btn-xs btn-default"
                                             type="button"
@@ -256,3 +256,60 @@
     </div><!--div.block-->
     <!-- END Dynamic Table Full -->
 </div>
+
+
+<!--EDIT DATA-->
+<!-- Fade In Modal -->
+<div on-modal-close ng-attr-id="{{editTableId}}" ng-init="tableInstance = tableViewInit(relationDetail, relationType); editTableId = tableInstance.getCache().relationName + 'EditTable'" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="block block-themed block-transparent remove-margin-b">
+                <div class="block-header bg-primary-dark">
+                    <ul class="block-options">
+                        <li>
+                            <button  data-dismiss="modal" type="button"><i class="si si-close"></i></button>
+                        </li>
+                    </ul>
+                    <h3 class="block-title">{{tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
+                </div>
+                <div ng-if="tableInstance.getCache().schema.validations" class="block-content block-content-narrow">
+
+                    <form name="tableInstance.getCache().schema.form"  ng-validate="tableInstance.getCache().schema.validations" novalidate  class="form-horizontal">
+                        <formly-form   model="tableInstance.getCache().settings.saveFormData" fields="tableInstance.getCache().schema.fields"></formly-form>
+                    </form>
+                </div><!--block-content-->
+            </div>
+            <!-- ng disabled removed as now ng-disabled="!enableButton(schema.form)" -->
+            <div class="modal-footer">
+                <button data-target="#addDataModal"  class="btn btn-sm btn-default "  type="button" data-dismiss="modal">Close</button>
+                <button class="btn btn-sm btn-default "  style="margin-right:20px;" type="button" ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)">Reset data</button>
+                <button
+
+                        class="btn btn-sm btn-default"
+                        ng-click="tableInstance.saveForm(tableInstance.getCache().schema, tableInstance.getCache().schema.form,  tableInstance.getCache().settings.saveFormData, true, modelIdWithHash)">
+                    <i class="fa fa-save"></i>
+                    Save
+                </button>
+                <button
+                        ng-init="modelIdWithHash= '#' + editTableId"
+                        type="submit"
+                        class="btn btn-sm bg-primary-dark"
+                        style="color:#fff;"
+                        ng-click="tableInstance.saveForm(tableInstance.getCache().schema, tableInstance.getCache().schema.form, tableInstance.getCache().settings.saveFormData, false)" >
+                    <i class="fa fa-save"></i>
+                    Save and add another
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- For showing dialog box -->
+<snaphy-dialog
+        message="{{dialog.message}}"
+        table-title="{{dialog.title}}"
+        on-cancel="dialog.onCancel()"
+        on-confirm="dialog.onConfirm()"
+        show-dialog="dialog.show">
+</snaphy-dialog>

@@ -243,7 +243,6 @@ angular.module($snaphy.getModuleName())
 
                     //console.log(cache[relationName]);
                     //TODO: CREATE A NEW SERVICE AND DO ALL WORK THERE..
-                    //TODO: FETCH THE ABSOLUTE SCHEMA For each model..
                     //TODO: LOAD THE DATA FROM THE SERVER WITH SEARCH LIST ID EMBEDED IN THE FILTER
                     //TODO: OPTION TO EDIT, DELETE, PRINT each set of row.
                     //TODO: IN  CASE OF HASANDBELONGSTOMANY OPTION TO REMOVE ALSO.
@@ -902,6 +901,170 @@ angular.module($snaphy.getModuleName())
 
                     };
 
+                    /**
+                     * Method  for checking if the form is valid.
+                     * @param  {[type]} schema template schema object with property fields showing all the fields.
+                     * @return {[type]}        [description]
+                     */
+                    var isValid = function(form) {
+                        try {
+                            //TODO Removing find alternate for  form.$dirty
+                            if (form.validate()) {
+                                if ($.isEmptyObject(form.$error)) {
+                                    return true;
+                                }
+                            }
+                        } catch (err) {
+                            return false;
+                        }
+
+                        return false;
+                    };
+
+
+                    //Method for rollbackchanges is error occured..
+                    var rollBackChanges = function() {
+                        if (!$.isEmptyObject(getCache().settings.backupData)) {
+                            getCache().displayed.forEach(function(data, index) {
+                                if (data.id === getCache().settings.backupData.id && !$.isEmptyObject(getCache().settings.backupData)) {
+                                    //rollback changes..
+                                    getCache().displayed[index] = getCache().settings.backupData;
+                                    //Reset backup data..
+                                    getCache().settings.backupData = {};
+                                    return false;
+                                }
+                            });
+                        }
+                    };
+
+
+
+                    //Save|update the form..
+                    /**
+                     * Model for saving or updating the data to database..
+                     * @param formStructure
+                     * @param formData
+                     * @param formModel
+                     * @param goBack
+                     * @param modelInstance referencing to the id attribute of the  form.
+                     */
+                    var saveForm = function(formStructure, formData, formModel, goBack, modelInstance) {
+                        if(ImageUploadingTracker.isUploadInProgress()){
+                            SnaphyTemplate.notify({
+                                message: "Wait!! Image uploading is in progress. Please wait till the image is uploaded.",
+                                type: 'danger',
+                                icon: 'fa fa-times',
+                                align: 'left'
+                            });
+                            return false;
+                        }
+
+                        if (!isValid(formData)) {
+                            SnaphyTemplate.notify({
+                                message: "Error data is Invalid.",
+                                type: 'danger',
+                                icon: 'fa fa-times',
+                                align: 'left'
+                            });
+
+                            //If edit was going on revert back..
+                            if (formModel.id) {
+                                rollBackChanges();
+                            }
+                        } else {
+                            //Now save the model..
+                            var baseDatabase = Database.loadDb(formStructure.model);
+
+                            var schema = {
+                                "relation": getCache().schema.relations
+                            };
+
+                            var requestData = {
+                                data: formModel,
+                                schema: schema
+                            };
+
+                            //create a copy of the data..
+                            var savedData = angular.copy(formModel);
+                            var positionNewData;
+                            var update;
+                            if (formModel.id) {
+                                update = true;
+
+                            } else {
+                                positionNewData = getCache().displayed.length;
+                                //First add to the table..
+                                getCache().displayed.push(savedData);
+                                update = false;
+                            }
+
+
+                            //Now save||update the database with baseDatabase method.
+                            baseDatabase.save({}, requestData, function(baseModel) {
+                                if (!update) {
+                                    //Now update the form with id.
+                                    getCache().displayed[positionNewData].id = baseModel.data.id;
+                                }
+                                SnaphyTemplate.notify({
+                                    message: "Data successfully saved.",
+                                    type: 'success',
+                                    icon: 'fa fa-check',
+                                    align: 'left'
+                                });
+                            }, function(respHeader) {
+                                //console.log("Error saving data to server");
+                                //console.error(respHeader);
+                                var message = "Error saving data.";
+                                if(respHeader){
+                                    if(respHeader.data){
+                                        if(respHeader.data.error){
+                                            if(respHeader.data.error.message){
+                                                message = respHeader.data.error.message;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (update) {
+                                    rollBackChanges();
+                                } else {
+                                    //remove the form added data..
+                                    if (positionNewData > -1) {
+                                        getCache().displayed.splice(positionNewData, 1);
+                                    }
+                                }
+
+                                //console.error(respHeader);
+                                SnaphyTemplate.notify({
+                                    message: message,
+                                    type: 'danger',
+                                    icon: 'fa fa-times',
+                                    align: 'left'
+                                });
+                            });
+
+                            //Now reset the form..
+                            resetSavedForm(formData);
+                            closeModel(goBack, modelInstance);
+
+                        }
+                    }; //saveForm
+
+                    //Goback or close the model..
+                    var closeModel = function(goBack, modelInstance) {
+                        //Reset the image upload if any...
+                        ImageUploadingTracker.resetTracker();
+                        if (goBack) {
+                            if (modelInstance) {
+                                //close the model..
+                                $(modelInstance).modal('hide');
+                            }
+                        }
+                    };
+
+
+
+
 
 
                     return {
@@ -929,7 +1092,8 @@ angular.module($snaphy.getModuleName())
                         getRelationColumnValue: getRelationColumnValue,
                         getRelatedDataTagInfo: getRelatedDataTagInfo,
                         prepareDataForEdit: prepareDataForEdit,
-                        deleteData: deleteData
+                        deleteData: deleteData,
+                        saveForm: saveForm
 
                     };
                 }
