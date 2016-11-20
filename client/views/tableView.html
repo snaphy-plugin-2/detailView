@@ -38,26 +38,26 @@
                     </ul>
                 </li>
                 <li>
-                    <button type="button" data-target="#{{editTableId}}"   ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)" data-toggle="modal" title="Add {{tableInstance.getCache().modelName | camelCaseToSpaces}}" data-original-title="Add {{tableInstance.getCache().modelName | camelCaseToSpaces}}"><i class="si si-plus"></i></button>
+                    <button type="button" data-target="#{{ ::editTableId}}"   ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)" data-toggle="modal" title="Add {{ ::tableInstance.getCache().modelName | camelCaseToSpaces}}" data-original-title="Add {{ ::tableInstance.getCache().modelName | camelCaseToSpaces}}"><i class="si si-plus"></i></button>
                 </li>
                 <li>
                     <button ng-click="tableInstance.resetAll()" type="button" data-toggle="block-option" data-action="refresh_toggle"  ><i class="si si-refresh"></i></button>
                 </li>
             </ul>
-            <h3 class="block-title">{{tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
+            <h3 class="block-title">{{ ::tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
         </div>
 
         <div st-pipe="tableInstance.refreshData" ng-init="tableId = tableInstance.getCache().relationName + 'Table'"  st-table="tableInstance.getCache().displayed" class="block-content">
             <div  class="table-responsive" style="overflow-x: hidden;">
-                <table ng-attr-id="{{tableId}}"  class="table table-bordered  table-striped js-dataTable-full">
+                <table ng-attr-id="{{ ::tableId}}"  class="table table-bordered  table-striped js-dataTable-full">
                     <thead>
                     <tr style="cursor: pointer;">
 
                         <th style="word-wrap:break-word;"
                             ng-if = "tableInstance.displayProperties(tableInstance.getCache().schema, header)"
                             ng-repeat="header in tableInstance.getCache().schema.header"
-                            st-sort="{{header}}">
-                            {{header | removeDot | underscoreless}}
+                            st-sort="{{ ::header}}">
+                            {{ ::header | removeDot | underscoreless}}
                         </th>
                         <th class="text-center" style="width: 10%;word-wrap:break-word;">Actions</th>
                     </tr>
@@ -70,7 +70,7 @@
                                     ng-model="tableInstance.getCache().settings.inlineSearch[header]"
                                     ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'text'"
                                     type="text"
-                                    st-search="{{header}}"
+                                    st-search="{{ ::header}}"
                             />
                             <select
                                     ng-change="addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header,  'select')"
@@ -81,7 +81,7 @@
                                     snaphy-ra-load-select
                                     ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'select', tableInstance.getCache().settings.inlineSearch, header)">
                                 <option value="" >All</option>
-                                <option  ng-repeat="option in getOptions(header, tableInstance.getCache().schema)" value="{{option}}">{{option}}</option>
+                                <option  ng-repeat="option in getOptions(header, tableInstance.getCache().schema)" value="{{ ::option}}">{{ ::option}}</option>
                             </select>
                             <input
                                     ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header, 'date')"
@@ -122,7 +122,7 @@
                                     snaphy-ra-load-select
                                     ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'select', tableInstance.getCache().settings.inlineSearch, header)">
                                 <option value="" >All</option>
-                                <option  ng-repeat="option in tableInstance.getOptions(header, tableInstance.getCache().schema)" value="{{option}}">{{option}}</option>
+                                <option  ng-repeat="option in tableInstance.getOptions(header, tableInstance.getCache().schema)" value="{{ ::option}}">{{ ::option}}</option>
                             </select>
                             <input
                                     ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header, 'related.date', tableInstance.getCache().schema)"
@@ -164,48 +164,48 @@
                             style="width:100px;word-wrap:break-word;">
 
 
-                                <span data-sort="{{tableInstance.getColValue(rowObject, header)}}"  data-filter="{{tableInstance.getColValue(rowObject, header)}}" ng-if="colType === '[object String]' || colType === '[object Boolean]'">
+                                <span data-sort="{{ ::tableInstance.getColValue(rowObject, header)}}"  data-filter="{{ ::tableInstance.getColValue(rowObject, header)}}" ng-if="colType === '[object String]' || colType === '[object Boolean]'">
                                     <span ng-if="tableConfig.onClick !== undefined">
                                         <!--Display link here..-->
-                                        <a ui-sref="{{tableConfig.onClick.state}}({{tableInstance.getParams(tableConfig.onClick.params, rowObject)}})">{{tableInstance.getColValue(rowObject, header)}}</a>
+                                        <a ui-sref="{{ ::tableConfig.onClick.state}}({{ ::tableInstance.getParams(tableConfig.onClick.params, rowObject)}})">{{ ::tableInstance.getColValue(rowObject, header)}}</a>
                                     </span>
 
                                     <span ng-if="tableConfig.date">
                                         <!--Display link here..-->
                                         <span
-                                                data-order="{{tableInstance.dateInSeconds(rowObject, header)}}"
-                                                data-sort="{{tableInstance.dateInSeconds(rowObject, header)}}"
-                                                data-search="{{tableInstance.getColValue(rowObject, header)}}" >
-                                            {{tableInstance.toJsDate(tableInstance.getColValue(rowObject, header) )| date:'MM/dd/yyyy'}}
+                                                data-order="{{ ::tableInstance.dateInSeconds(rowObject, header)}}"
+                                                data-sort="{{ ::tableInstance.dateInSeconds(rowObject, header)}}"
+                                                data-search="{{ ::tableInstance.getColValue(rowObject, header)}}" >
+                                            {{ ::tableInstance.toJsDate(tableInstance.getColValue(rowObject, header) )| date:'MM/dd/yyyy'}}
                                         </span>
                                     </span>
 
                                     <span ng-init="labelType = tableConfig.tag[getColValue(rowObject, header)]" ng-if="tableConfig.tag !== undefined">
-                                        <span ng-if="tableInstance.getTagInfo(tableInstance.getCache().schema.tables, colKey, rowObject, header) !== undefined" class="label" ng-class="tableInstance.getTagInfo(tableInstance.getCache().schema.tables, colKey, rowObject, header)" >{{tableInstance.getColValue(rowObject, header)}}</span>
-                                        <span ng-if="tableInstance.getTagInfo(tableInstance.getCache().schema.tables, colKey, rowObject, header) === undefined" class="label label-default">{{tableInstance.getColValue(rowObject, header)}}</span>
+                                        <span ng-if="tableInstance.getTagInfo(tableInstance.getCache().schema.tables, colKey, rowObject, header) !== undefined" class="label" ng-class="tableInstance.getTagInfo(tableInstance.getCache().schema.tables, colKey, rowObject, header)" >{{ ::tableInstance.getColValue(rowObject, header)}}</span>
+                                        <span ng-if="tableInstance.getTagInfo(tableInstance.getCache().schema.tables, colKey, rowObject, header) === undefined" class="label label-default">{{ ::tableInstance.getColValue(rowObject, header)}}</span>
                                     </span>
                                     <span ng-if="tableConfig.tag === undefined && tableConfig.onClick === undefined && !tableConfig.date">
-                                        {{tableInstance.getColValue(rowObject, header) | cut:true:50:' ...'}}
+                                        {{ ::tableInstance.getColValue(rowObject, header) | cut:true:50:' ...'}}
                                     </span>
                                 </span>
                                 <span ng-if="colType === '[object Number]'">
                                     <!--Do string populated work here...-->
-                                    {{tableInstance.getColValue(rowObject, header)}}
+                                    {{ ::tableInstance.getColValue(rowObject, header)}}
                                 </span>
                                 <span ng-if="colType === '[object Array]'">
                                     <!--Do string populated work here...-->
-                                    <!-- {{getColValue(rowObject, header)}} -->
+                                    <!-- {{ ::getColValue(rowObject, header)}} -->
                                     <ul>
                                         <li ng-repeat="arrayData in tableInstance.getColValue(rowObject, header)">
                                             <span ng-if="tableInstance.checkType(tableInstance.getColValue(rowObject, header), $index)  === '[object Object]'">
                                                 <ul style="padding-left: 0px;">
                                                     <li ng-repeat="(key, arrValue) in arrayData">
-                                                        {{arrValue}}
+                                                        {{ ::arrValue}}
                                                     </li>
                                                 </ul>
                                             </span>
                                             <span ng-if="tableInstance.checkType(getColValue(rowObject, header), $index)  !== '[object Object]'">
-                                                {{arrayData}}
+                                                {{ ::arrayData}}
                                             </span>
                                         </li>
                                     </ul>
@@ -225,12 +225,12 @@
                                             <span  ng-if="tableInstance.checkType(colValue, key) === '[object Object]'">
                                                 <ul>
                                                     <li ng-repeat="(nestedKey, nestedValue) in tableInstance.getColValue(colValue, key)">
-                                                        <small><strong>{{nestedKey | capitalize}}</strong></small>: <span>{{nestedValue}}</span>
+                                                        <small><strong>{{ ::nestedKey | capitalize}}</strong></small>: <span>{{ ::nestedValue}}</span>
                                                     </li>
                                                 </ul>
                                             </span>
                                             <span ng-if="objColType !== '[object Object]'">
-                                               <small><strong>{{key | capitalize }}</strong></small>: {{tableInstance.getColValue(colValue, key)}}
+                                               <small><strong>{{ ::key | capitalize }}</strong></small>: {{ ::tableInstance.getColValue(colValue, key)}}
                                             </span>
 
 
@@ -239,31 +239,31 @@
                                     <span ng-if="colType !== '[object Object]'">
                                         <span ng-if="tableConfig.type === 'date'">
                                             <span
-                                                    data-order="{{tableInstance.dateInSeconds(rowObject, header, colKey)}}"
-                                                    data-sort="{{tableInstance.dateInSeconds(rowObject, header, colKey)}}"
-                                                    data-search="{{getRelationColumnValue(rowObject, header, colKey)}}" >
-                                                {{tableInstance.toJsDate(tableInstance.getRelationColumnValue(rowObject, header, colKey) )| date:'MM/dd/yyyy'}}
+                                                    data-order="{{ ::tableInstance.dateInSeconds(rowObject, header, colKey)}}"
+                                                    data-sort="{{ ::tableInstance.dateInSeconds(rowObject, header, colKey)}}"
+                                                    data-search="{{ ::getRelationColumnValue(rowObject, header, colKey)}}" >
+                                                {{ ::tableInstance.toJsDate(tableInstance.getRelationColumnValue(rowObject, header, colKey) )| date:'MM/dd/yyyy'}}
                                             </span>
                                         </span>
 
                                         <!-- Tag type -->
                                         <span ng-init="labelType = tableConfig.tag[tableInstance.getRelationColumnValue(rowObject, header, colKey)]" ng-if="tableConfig.tag !== undefined">
                                             <span ng-if="tableInstance.getRelatedDataTagInfo(tableConfig, colKey, rowObject, header) !== undefined" class="label" ng-class="tableInstance.getRelatedDataTagInfo(tableConfig, colKey, rowObject, header)" >
-                                                {{tableInstance.getRelationColumnValue(rowObject, header, colKey)}}
+                                                {{ ::tableInstance.getRelationColumnValue(rowObject, header, colKey)}}
                                             </span>
                                             <span ng-if="tableInstance.getRelatedDataTagInfo(tableConfig, colKey, rowObject, header) === undefined" class="label label-default">
-                                                {{tableInstance.getRelationColumnValue(rowObject, header, colKey)}}
+                                                {{ ::tableInstance.getRelationColumnValue(rowObject, header, colKey)}}
                                             </span>
                                         </span>
 
                                         <span ng-if="tableConfig.onClick !== undefined">
                                             <!--Display link here..-->
-                                            <a ui-sref="{{tableConfig.onClick.state}}({{tableInstance.getParams(tableConfig.onClick.params, rowObject)}})">{{tableInstance.getRelationColumnValue(rowObject, header, colKey)}}</a>
+                                            <a ui-sref="{{ ::tableConfig.onClick.state}}({{ ::tableInstance.getParams(tableConfig.onClick.params, rowObject)}})">{{ ::tableInstance.getRelationColumnValue(rowObject, header, colKey)}}</a>
                                         </span>
 
                                         <!-- Default case -->
                                         <span ng-if="tableConfig.tag === undefined && !tableConfig.date && !tableConfig.onClick">
-                                            {{tableInstance.getRelationColumnValue(rowObject, header, colKey)  | cut:true:50:' ...'}}
+                                            {{ ::tableInstance.getRelationColumnValue(rowObject, header, colKey)  | cut:true:50:' ...'}}
                                         </span>
                                     </span>
                                 </span>
@@ -272,7 +272,7 @@
                         <!-- For adding table edit and delete options. -->
                         <td  class="text-center">
                             <div class="btn-group">
-                                <button class="btn btn-xs btn-default" type="button" data-toggle="modal" data-target="#{{editTableId}}" title="Edit Data" ng-click="tableInstance.prepareDataForEdit(rowObject, tableInstance.getCache().schema.form)"><i class="fa fa-pencil"></i></button>
+                                <button class="btn btn-xs btn-default" type="button" data-toggle="modal" data-target="#{{ ::editTableId}}" title="Edit Data" ng-click="tableInstance.prepareDataForEdit(rowObject, tableInstance.getCache().schema.form)"><i class="fa fa-pencil"></i></button>
                                 <button
                                         class="btn btn-xs btn-default"
                                         type="button"
@@ -289,7 +289,7 @@
             </div>
             <div class="row">
                 <div class="col-md-6 ">
-                    <span class="text-left text-muted" style="vertical-align: middle;"> Total {{tableInstance.getCache().settings.totalResults}} results | {{tableInstance.getCache().settings.pagesReturned}} Pages.</span>
+                    <span class="text-left text-muted" style="vertical-align: middle;"> Total {{ ::tableInstance.getCache().settings.totalResults}} results | {{ ::tableInstance.getCache().settings.pagesReturned}} Pages.</span>
                 </div>
                 <div  class="col-md-6">
                     <span st-pagination="" st-items-by-page="5" class="text-right" style="vertical-align: middle;"></span>
@@ -303,7 +303,7 @@
 
 <!--EDIT DATA-->
 <!-- Fade In Modal -->
-<div on-modal-close ng-attr-id="{{editTableId}}" ng-init="tableInstance = tableViewInit(relationDetail, relationType); editTableId = tableInstance.getCache().relationName + 'EditTable'" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+<div on-modal-close ng-attr-id="{{ ::editTableId}}" ng-init="tableInstance = tableViewInit(relationDetail, relationType); editTableId = tableInstance.getCache().relationName + 'EditTable'" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="block block-themed block-transparent remove-margin-b">
@@ -313,7 +313,7 @@
                             <button  data-dismiss="modal" type="button"><i class="si si-close"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">{{tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
+                    <h3 class="block-title">{{ ::tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
                 </div>
                 <div ng-if="tableInstance.getCache().schema.validations" class="block-content block-content-narrow">
 
@@ -324,7 +324,7 @@
             </div>
             <!-- ng disabled removed as now ng-disabled="!enableButton(schema.form)" -->
             <div class="modal-footer">
-                <button data-target="#{{editTableId}}"   class="btn btn-sm btn-default "  type="button" data-dismiss="modal">Close</button>
+                <button data-target="#{{ ::editTableId}}"   class="btn btn-sm btn-default "  type="button" data-dismiss="modal">Close</button>
                 <button class="btn btn-sm btn-default "  style="margin-right:20px;" type="button" ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)">Reset data</button>
                 <button
 
@@ -348,11 +348,3 @@
 </div>
 
 
-<!-- For showing dialog box -->
-<snaphy-dialog
-        message="{{dialog.message}}"
-        table-title="{{dialog.title}}"
-        on-cancel="dialog.onCancel()"
-        on-confirm="dialog.onConfirm()"
-        show-dialog="dialog.show">
-</snaphy-dialog>

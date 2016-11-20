@@ -309,6 +309,8 @@ angular.module($snaphy.getModuleName())
                             dataContainer.schema = SnaphyCache.getItem(modelName);
                         }
 
+                        var before = new Date().getTime();
+
                         //If absoluteSchema is not present..
                         if ($.isEmptyObject(dataContainer.schema )) {
                             //First get the schema..
@@ -344,6 +346,9 @@ angular.module($snaphy.getModuleName())
                                 dataContainer.settings.totalResults = result.count;
                                 dataContainer.settings.isLoading = false;
                                 dataContainer.settings.schemaFetched = true;
+
+                                var after = new Date().getTime();
+                                console.log("Time taken to load after template load: ", after - before,  "\n");
                             },function(httpResp){
                                 console.error(httpResp);
                                 //Stop the loading bar..
