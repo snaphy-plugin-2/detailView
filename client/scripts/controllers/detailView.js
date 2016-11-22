@@ -173,6 +173,10 @@ angular.module($snaphy.getModuleName())
             var cache = {};
             return function(relationDetail, relationType){
                 var relationName = relationDetail.relationName;
+                if(relationType === "hasManyThrough"){
+                    //Switch relation model to throughRelationModel
+                    relationDetail.modelName = relationDetail.through;
+                }
                 if(relationName){
                     //Reset the data and create a blank object..
                     /**
