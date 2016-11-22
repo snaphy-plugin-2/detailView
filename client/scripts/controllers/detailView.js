@@ -98,7 +98,6 @@ angular.module($snaphy.getModuleName())
 
 
 
-
         /**
          *
          * @param key name of the relation 'hasMany', hasOne, hasManythrough, belongsTo, hasAndBelongsToMany
@@ -196,7 +195,10 @@ angular.module($snaphy.getModuleName())
                         cache[relationName].displayed = [];
                         //Where object for adding filtering..
                         cache[relationName].where = {};
-                        cache[relationName].where[relationDetail.searchId] = modelId;
+                        if(relationDetail.searchId){
+                            cache[relationName].where[relationDetail.searchId] = modelId;
+                        }
+
                         //This object all the settings related to current dataContainer of table view.
                         cache[relationName].settings = {
                             filterReset : false,

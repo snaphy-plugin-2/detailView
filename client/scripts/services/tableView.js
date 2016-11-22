@@ -76,6 +76,7 @@ angular.module($snaphy.getModuleName())
 
 
 
+
             /**
              * Event listener for adding reset button to the filters. To be called when reset button is called..
              */
@@ -137,6 +138,29 @@ angular.module($snaphy.getModuleName())
                 }
                 return true;
             };
+
+
+
+            /**
+             * Fetch the header title. Prefer the label if provided first.
+             * @param schema
+             * @param header
+             * @return {string} Title of header.
+             */
+            var getHeaderTitle = function(schema, header){
+                //First convert the header to optimal type..
+                var new_header = header.replace(/\./, "_");
+                if (schema.tables) {
+                    if (schema.tables[new_header]) {
+                        if (schema.tables[new_header].label) {
+                            return schema.tables[new_header].label;
+                        }
+                    }
+                }
+                return header;
+            };
+
+
 
             var convertToUnderScore = function(key){
                 if(key){
@@ -210,6 +234,9 @@ angular.module($snaphy.getModuleName())
 
                 return where;
             };
+
+
+
 
             //http://stackoverflow.com/questions/1584370/how-to-merge-two-arrays-in-javascript-and-de-duplicate-items
             /**
@@ -453,12 +480,16 @@ angular.module($snaphy.getModuleName())
                 return null;
             };
 
+
+
             // Used in  the automata to get the table values..
             var getTagInfo = function(tableSchema, colKey, rowObject, header) {
                 var tableConfig = findModelPropertyTableConfig(tableSchema, colKey);
                 var colValue = getColValue(rowObject, header);
                 return tableConfig.tag[colValue];
             };
+
+
 
             /*Get related data tag info*/
             var getRelatedDataTagInfo = function(tableConfig, colKey, rowObject, header){
@@ -483,6 +514,7 @@ angular.module($snaphy.getModuleName())
                 getCache().settings.backupData = angular.copy(data);
                 getCache().settings.saveFormData = data;
             };
+
 
 
             /**
@@ -554,6 +586,8 @@ angular.module($snaphy.getModuleName())
                 };
 
             };
+
+
 
             /**
              * Method  for checking if the form is valid.
@@ -723,6 +757,7 @@ angular.module($snaphy.getModuleName())
                 getParams: getParams,
                 getColumnKey: getColumnKey,
                 displayProperties: displayProperties,
+                getHeaderTitle: getHeaderTitle,
                 showFilterType: showFilterType,
                 addWhereQuery: addWhereQuery,
                 getOptions: getOptions,
