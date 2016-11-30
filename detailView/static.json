@@ -4,7 +4,9 @@
   },
   "js": {
     "/detailView/scripts/routes/detailView.js": "detailViewRoute",
-    "/detailView/scripts/controllers/detailView.js": "detailViewController"
+    "/detailView/scripts/controllers/detailView.js": "detailViewController",
+    "/detailView/scripts/services/detailView.js": "detailViewServices",
+    "/detailView/scripts/services/tableView.js": "tableViewServices"
   },
   "moduleDependencies":{
 

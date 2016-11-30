@@ -3,5 +3,12 @@
   "description": "Plugin for representing the detail view of each modal.",
   "routeExposure": "/detailView",
   "activate": true,
-  "pluginDependencies": {}
+  "pluginDependencies": {
+    "dashboard": "^2.0.0",
+    "JqueryValidate": "^2.0.0",
+    "login":"^2.0.0",
+    "formlyTemplate":"^2.0.0",
+    "automata": "^2.0.0",
+    "robustAutomata": "^2.0.0"
+  }
 }
