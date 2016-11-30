@@ -291,7 +291,7 @@
                     <span class="text-left text-muted" style="vertical-align: middle;"> Total {{ tableInstance.getCache().settings.totalResults}} results | {{ tableInstance.getCache().settings.pagesReturned}} Pages.</span>
                 </div>
                 <div  class="col-md-6">
-                    <span st-pagination="" st-items-by-page="5" class="text-right" style="vertical-align: middle;"></span>
+                    <span st-pagination="" st-items-by-page="tableInstance.getCache().settings.totalNumberOfRows" class="text-right" style="vertical-align: middle;"></span>
                 </div>
             </div>
         </div>
@@ -317,7 +317,7 @@
                 <div ng-if="tableInstance.getCache().schema.validations" class="block-content block-content-narrow">
 
                     <form name="tableInstance.getCache().schema.form"  ng-validate="tableInstance.getCache().schema.validations" novalidate  class="form-horizontal">
-                        <formly-form   model="tableInstance.getCache().settings.saveFormData" fields="tableInstance.getCache().schema.fields"></formly-form>
+                        <formly-form   model="tableInstance.getCache().settings.saveFormData" fields="tableInstance.getCache().schema.container.default"></formly-form>
                     </form>
                 </div><!--block-content-->
             </div>

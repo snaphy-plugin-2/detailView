@@ -82,6 +82,20 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 	};
 
 
+	var extend = function(original, context, key) {
+		for (key in context) {
+			if (context.hasOwnProperty(key)) {
+				if (Object.prototype.toString.call(context[key]) === '[object Object]') {
+					original[key] = extend(original[key] || {}, context[key]);
+				} else {
+					original[key] = context[key];
+				}
+			}
+		}
+		return original;
+	};
+
+
 
 
 	/**
@@ -95,7 +109,8 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 		//Now adding  prop of belongTo and hasMany method to the header and schema respectfully...
 		for(var relationName in relations){
 			if(relations.hasOwnProperty(relationName)){
-				var relationObj = relations[relationName];
+				var relationObj = {};
+					relationObj = extend({}, relations[relationName]);
 				var modelName       = relationObj.model;
 				if((relationObj.type === 'hasOne' || relationObj.type === 'belongsTo') && relationObj.templateOptions !== undefined){
 
@@ -131,12 +146,24 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 								hasAndBelongsToMany:[],
 								hasOne:[]
 							};
-						//add schema
-						addNestedModelRelation(app, belongsToSchema.templateOptions, relatedModelRelations, relationObj.model);
+
 					}
-					//console.log(belongsToSchema);
-					//Now add this to the schema..
-					schema.fields.push(belongsToSchema);
+
+					//add schema
+					addNestedModelRelation(app, belongsToSchema.templateOptions, relatedModelRelations, relationObj.model);
+
+					if(relations[relationName].templateOptions.container){
+						schema.container[relations[relationName].templateOptions.container] = schema.container[relations[relationName].templateOptions.container] || [];
+						schema.container[relations[relationName].templateOptions.container].push(belongsToSchema);
+					}else{
+						//Now add this to the schema..
+						schema.container.default = schema.container.default || [];
+						schema.container.default.push(belongsToSchema);
+						//schema.fields.push(belongsToSchema);
+					}
+
+
+
 				}
 
 			}
@@ -273,7 +300,10 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 				hasOne:[]
 			};
 		}
-		schema.fields   = [];
+		//Start adding container..
+		schema.container = {};
+		//Store different fields by their name,,
+		schema.container.default   = schema.container.default || [];
 		const validationModelObj = helper.getValidationObj(modelName);
 		//{validationsBackend, complexValidation}
 
@@ -303,7 +333,7 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 
 		for(var propertyName in modelProperties){
 			if(modelProperties.hasOwnProperty(propertyName)){
-				var propObj = modelProperties[propertyName].template;
+				let propObj = modelProperties[propertyName].template;
 				if(propObj !== undefined){
 					propObj.key = propertyName;
 					//also add the validation to the object..
@@ -324,7 +354,19 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 						// Validation is not defined in the model definition
 					}
 
-					schema.fields.push(propObj);
+					if(propObj.templateOptions){
+						if(propObj.templateOptions.container){
+							schema.container[propObj.templateOptions.container] = schema.container[propObj.templateOptions.container] || [];
+							schema.container[propObj.templateOptions.container].push(propObj);
+						}else{
+							schema.container.default   = schema.container.default || [];
+							schema.container.default.push(propObj);
+						}
+					}else{
+						schema.container.default   = schema.container.default || [];
+						schema.container.default.push(propObj);
+					}
+
 				}
 			}
 		}//for-in

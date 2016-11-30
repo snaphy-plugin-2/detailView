@@ -212,6 +212,7 @@ angular.module($snaphy.getModuleName())
                             isLoading: true,
                             pagesReturned: 0,
                             totalResults: 0,
+                            totalNumberOfRows: 5,
                             //Reset the filter for tracking model where query for facilitating the model search filter..
                             watchRelatedModels: {},
                             saveFormData: {},
@@ -291,7 +292,7 @@ angular.module($snaphy.getModuleName())
 
                         var pagination = tableState.pagination;
                         var start = tableState.pagination.start || 0; // This is NOT the page number, but the index of item in the list that you want to use to display the table.
-                        var number = pagination.number || 5; // Number of entries showed per page.
+                        var number = pagination.number || dataContainer.settings.totalNumberOfRows; // Number of entries showed per page.
                         //If a page is reset state i.e some filter is applied then move back to 1 page..
                         if(dataContainer.settings.resetPage){
                             tableState.pagination.start = 0;
