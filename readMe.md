@@ -17,6 +17,94 @@ Save the module in package.json of plugin file.
 Method: `POST`  
 Route: `/model name/detailViewSchema`  
 It has everything like `AbsoluteSchema` except it doesn't has __hasMany, hasManyThrough and hasAndBelongsToMany__ relation info.  
+A new container property added.
+Now get your data in form of arranged container.  
+
+Output will be like..  
+```
+{
+  "schema": {
+    "model": "Order",
+    "relations": {
+      "belongsTo": [
+        "customer"
+      ],
+      "hasOne": [
+        "deliveries",
+        "invoices"
+      ]
+    },
+    "container": {
+      "default": [
+        {
+          "type": "dummy",
+          "key": "orderNumber"
+        },
+        {
+          "type": "dummy",
+          "key": "added"
+        },
+        {
+          "type": "belongsTo",
+          "key": "customer",
+          "templateOptions": {
+            "container": {
+              "default": [
+                {
+                  "type": "dummy",
+                  "key": "added"
+                }
+              ],
+              "customerBox": [
+                {
+                  "type": "input",
+                  "templateOptions": {
+                    "container": "customerBox",
+                    "type": "text",
+                    "label": "Enter customer name",
+                    "id": "CustomerName",
+                    "inline": true,
+                    "colSize": "col-xs-6"
+                  },
+                  "key": "name"
+                }
+              ],
+              "subscriptionBox": []
+            },
+            "validations": {
+              "rules": {
+                "CustomerEmail": {
+                  "email": true
+                }
+              },
+              "messages": {
+                "CustomerEmail": {
+                  "email": "Email must be valid."
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "validations": {
+      "rules": {
+        "orderStatus": {
+          "required": true,
+          "valueNotEquals": ""
+        }
+      },
+      "messages": {
+        "orderStatus": {
+          "required": "Please add status",
+          "valueNotEquals": "Please add status"
+        }
+      }
+    }
+  }
+}
+```
+
 ```
 {
     fields, <- including hasOne and belongsTo relationships 
