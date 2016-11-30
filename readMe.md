@@ -150,5 +150,18 @@ Fetches the relation schema of a **root model** relationship.
 
 4. Proposal for adding summary widget for adding summary information in the detailView.
 
+
+5. You can add dynamic routes in detailView add this property in `settings/detailView/admin-panel-settings.js`
+```
+"addRoutes":{
+  //State name...
+  "addSubscription": {
+    "url": "/add/customer/:id",
+    "templateUrl": "template link here...",
+    "controller": "addSubscription"
+  }
+}
+```
+
 ####Written by Robins Gupta
 

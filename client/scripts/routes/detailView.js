@@ -8,6 +8,20 @@ angular.module($snaphy.getModuleName())
       $locationProvider.html5Mode(false);
       //$urlRouterProvider.otherwise('/');
 
+      //Add runtime dynamic states given in the list...
+      var routesList = $snaphy.loadSettings('detailView', "addRoutes");
+
+        if(routesList){
+            for(var stateName in routesList){
+                if(routesList.hasOwnProperty(stateName)){
+                    var stateDetail = routesList[stateName];
+                    if(stateName && stateDetail){
+                        $stateProvider.state(stateName, stateDetail);
+                    }
+                }
+            }
+        }
+
       $stateProvider
         //Provide routes in this way..
         .state('detailView', {
@@ -15,5 +29,4 @@ angular.module($snaphy.getModuleName())
           templateUrl: '/detailView/views/detailView.html',
           controller: 'detailViewControl'
         });
-
     }]); //config
