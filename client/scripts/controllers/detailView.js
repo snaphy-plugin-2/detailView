@@ -256,15 +256,6 @@ angular.module($snaphy.getModuleName())
                     };
 
 
-                    //console.log(cache[relationName]);
-                    //TODO: CREATE A NEW SERVICE AND DO ALL WORK THERE..
-                    //TODO: LOAD THE DATA FROM THE SERVER WITH SEARCH LIST ID EMBEDED IN THE FILTER
-                    //TODO: OPTION TO EDIT, DELETE, PRINT each set of row.
-                    //TODO: IN  CASE OF HASANDBELONGSTOMANY OPTION TO REMOVE ALSO.
-                    //TODO: BUTTON TO EXPORT DATA..
-                    //TODO: BUTTON TO PRINT VARIOUS DATA.
-                    //TODO: BUTTON TO CREATE NEW DATA WITH SEARCH ID EMBEDDED ALREADY.
-
                     /**
                      * Fetch the cache object..
                      * @returns {*}

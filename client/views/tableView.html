@@ -3,40 +3,6 @@
     <div ng-cloak class="block " ng-class="{'block-opt-refresh': tableInstance.getCache().settings.isLoading}" >
         <div class="block-header">
             <ul class="block-options">
-                <li class="dropdown">
-                    <button type="button" data-toggle="dropdown"><i class="si si-printer"></i> Print <span class="caret"></span> </button>
-                    <ul class="dropdown-menu dropdown-menu-right">
-                        <li class="dropdown-header">Print Select</li>
-                        <li>
-                            <a tabindex="-1" href="javascript:void(0)">Print 10 rows</a>
-                        </li>
-                        <li>
-                            <a tabindex="-1" href="javascript:void(0)">Print 100 rows</a>
-                        </li>
-                        <li class="divider"></li>
-                        <li class="dropdown-header">More</li>
-                        <li>
-                            <a tabindex="-1" href="javascript:void(0)">Print all data</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <button type="button" data-toggle="dropdown"><i class="si si-share-alt"></i> Export <span class="caret"></span></button>
-                    <ul class="dropdown-menu dropdown-menu-right">
-                        <li class="dropdown-header">Export Select</li>
-                        <li>
-                            <a tabindex="-1" href="javascript:void(0)">Export 10 rows</a>
-                        </li>
-                        <li>
-                            <a tabindex="-1" href="javascript:void(0)">Export 100 rows</a>
-                        </li>
-                        <li class="divider"></li>
-                        <li class="dropdown-header">More</li>
-                        <li>
-                            <a tabindex="-1" href="javascript:void(0)">Export all data</a>
-                        </li>
-                    </ul>
-                </li>
                 <li>
                     <button type="button" data-target="#{{ editTableId}}"   ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)" data-toggle="modal" title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}" data-original-title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}"><i class="si si-plus"></i></button>
                 </li>
@@ -317,7 +283,7 @@
                 <div ng-if="tableInstance.getCache().schema.validations" class="block-content block-content-narrow">
 
                     <form name="tableInstance.getCache().schema.form"  ng-validate="tableInstance.getCache().schema.validations" novalidate  class="form-horizontal">
-                        <formly-form   model="tableInstance.getCache().settings.saveFormData" fields="tableInstance.getCache().schema.container.default"></formly-form>
+                        <formly-form   model="tableInstance.getCache().settings.saveFormData" fields="tableInstance.getCache().schema.fields"></formly-form>
                     </form>
                 </div><!--block-content-->
             </div>
