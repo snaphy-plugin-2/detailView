@@ -508,11 +508,24 @@ angular.module($snaphy.getModuleName())
              * @return {[type]}           [description]
              */
             var prepareDataForEdit = function(data, form) {
-                //First reset the previous data..
-                resetSavedForm(form);
                 //First create a backup of the the data in case of rollback changes/cancel
                 getCache().settings.backupData = angular.copy(data);
                 getCache().settings.saveFormData = data;
+                //First reset the previous data..
+                resetSavedForm(form);
+            };
+
+
+            var fireHookBeforeSave = function(data){
+                if(getCache().beforeSaveHook){
+                   if(getCache().beforeSaveHook.length){
+                       for(var i=0; i< getCache().beforeSaveHook.length; i++){
+                           //Fire the beforeSave hooks..
+                           var func = getCache().beforeSaveHook[i];
+                           func(data);
+                       }
+                   }
+                }
             };
 
 
@@ -630,11 +643,11 @@ angular.module($snaphy.getModuleName())
             //Save|update the form..
             /**
              * Model for saving or updating the data to database..
-             * @param formStructure
-             * @param formData
-             * @param formModel
-             * @param goBack
-             * @param modelInstance referencing to the id attribute of the  form.
+             * @param formStructure {{}} absolute schema of the form
+             * @param formData {{}} angular form object
+             * @param formModel {{}} data
+             * @param goBack boolean
+             * @param modelInstance {String} referencing to the id attribute of the  form.
              */
             var saveForm = function(formStructure, formData, formModel, goBack, modelInstance) {
                 if(ImageUploadingTracker.isUploadInProgress()){
@@ -660,9 +673,11 @@ angular.module($snaphy.getModuleName())
                         rollBackChanges();
                     }
                 } else {
+                    //Fire the before save hook if present..any..
+                    fireHookBeforeSave(formModel);
+
                     //Now save the model..
                     var baseDatabase = Database.loadDb(formStructure.model);
-
                     var schema = {
                         "relation": getCache().schema.relations
                     };
