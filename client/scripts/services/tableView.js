@@ -508,11 +508,11 @@ angular.module($snaphy.getModuleName())
              * @return {[type]}           [description]
              */
             var prepareDataForEdit = function(data, form) {
+                //First reset the previous data..
+                resetSavedForm(form);
                 //First create a backup of the the data in case of rollback changes/cancel
                 getCache().settings.backupData = angular.copy(data);
                 getCache().settings.saveFormData = data;
-                //First reset the previous data..
-                resetSavedForm(form);
             };
 
 

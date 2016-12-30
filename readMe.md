@@ -163,5 +163,10 @@ Fetches the relation schema of a **root model** relationship.
 }
 ```
 
+
+### Future Roadmap
+1. Add docs for other feature.
+2. Add docs for show/hide action|edit|delete button.
+
 ####Written by Robins Gupta
 

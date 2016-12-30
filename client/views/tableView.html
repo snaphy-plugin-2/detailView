@@ -3,7 +3,7 @@
     <div ng-cloak class="block " ng-class="{'block-opt-refresh': tableInstance.getCache().settings.isLoading}" >
         <div class="block-header">
             <ul class="block-options">
-                <li>
+                <li ng-hide="relationDetail.action.create === false">
                     <button type="button" data-target="#{{ editTableId}}"   ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)" data-toggle="modal" title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}" data-original-title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}"><i class="si si-plus"></i></button>
                 </li>
                 <li>
@@ -12,7 +12,6 @@
             </ul>
             <h3 class="block-title">{{ tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
         </div>
-
         <div st-pipe="tableInstance.refreshData" ng-init="tableId = tableInstance.getCache().relationName + 'Table'"  st-table="tableInstance.getCache().displayed" class="block-content">
             <div  class="table-responsive" style="overflow-x: hidden;">
                 <table ng-attr-id="{{ tableId}}"  class="table table-bordered  table-striped js-dataTable-full">
@@ -24,7 +23,7 @@
                                 st-sort="{{ header}}">
                                 {{ tableInstance.getHeaderTitle(tableInstance.getCache().schema, header)  | removeDot | underscoreless}}
                             </th>
-                            <th class="text-center" style="width: 10%;word-wrap:break-word;">Actions</th>
+                            <th ng-hide="relationDetail.action.edit === false && relationDetail.action.delete === false " class="text-center" style="width: 10%;word-wrap:break-word;">Actions</th>
                         </tr>
 
                         <tr>
@@ -38,7 +37,7 @@
                                         st-search="{{ header}}"
                                 />
                                 <select
-                                        ng-change="addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header,  'select')"
+                                        ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header,  'select')"
                                         ng-model="tableInstance.getCache().settings.inlineSearch[header]"
                                         ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'select'"
                                         class="js-select2 form-control"
@@ -110,7 +109,7 @@
                                 />
                             </th>
                             <!--<button ng-click="resetAll()" class="btn btn-minw btn-default pull-right" type="button">Reset</button>-->
-                            <th class="text-center" style="width: 10%;word-wrap:break-word;">
+                            <th ng-hide="relationDetail.action.edit === false && relationDetail.action.delete === false " class="text-center" style="width: 10%;word-wrap:break-word;">
                                 <!-- Clear ui variables.. -->
                                 <button ng-click="tableInstance.resetAll()" class="btn btn-minw btn-default pull-right" type="button">Clear</button>
                             </th>
@@ -153,10 +152,7 @@
                                         {{ tableInstance.getColValue(rowObject, header) | cut:true:50:' ...'}}
                                     </span>
                                 </span>
-                               <!-- <span ng-if="colType === '[object Number]'">
-                                    &lt;!&ndash;Do string populated work here...&ndash;&gt;
-                                    {{ tableInstance.getColValue(rowObject, header)}}
-                                </span>-->
+
                                 <span ng-if="colType === '[object Array]'">
                                     <!--Do string populated work here...-->
                                     <!-- {{ getColValue(rowObject, header)}} -->
@@ -177,10 +173,7 @@
                                 </span>
 
 
-
-
-                            <!-- In case of Object or RELATED DATA hasOne or BelongTo type data.. -->
-
+                                <!-- In case of Object or RELATED DATA hasOne or BelongTo type data.. -->
                                 <span ng-init="colType = tableInstance.getRelationColumnType (rowObject, header, colKey, colType);
                                       colValue = tableInstance.getRelationColumnValue(rowObject, header, colKey);"
                                       ng-if="colType === '[object Object]'">
@@ -197,8 +190,6 @@
                                             <span ng-if="objColType !== '[object Object]'">
                                                <small><strong>{{ key | capitalize }}</strong></small>: {{ tableInstance.getColValue(colValue, key)}}
                                             </span>
-
-
                                         </li>
                                     </ul>
                                     <span ng-if="colType !== '[object Object]'">
@@ -235,10 +226,19 @@
 
                         </td>
                         <!-- For adding table edit and delete options. -->
-                        <td  class="text-center">
+                        <td  ng-hide="relationDetail.action.edit === false && relationDetail.action.delete === false " class="text-center">
                             <div class="btn-group">
-                                <button class="btn btn-xs btn-default" type="button" data-toggle="modal" data-target="#{{ editTableId}}" title="Edit Data" ng-click="tableInstance.prepareDataForEdit(rowObject, tableInstance.getCache().schema.form)"><i class="fa fa-pencil"></i></button>
                                 <button
+                                        ng-hide="relationDetail.action.edit === false"
+                                        class="btn btn-xs btn-default"
+                                        type="button"
+                                        data-toggle="modal"
+                                        data-target="#{{ editTableId}}"
+                                        title="Edit Data"
+                                        ng-click="tableInstance.prepareDataForEdit(rowObject, tableInstance.getCache().schema.form)">
+                                    <i class="fa fa-pencil"></i></button>
+                                <button
+                                        ng-hide="relationDetail.action.delete === false"
                                         class="btn btn-xs btn-default"
                                         type="button"
                                         data-toggle="tooltip"
@@ -263,53 +263,55 @@
         </div>
     </div><!--div.block-->
     <!-- END Dynamic Table Full -->
-</div>
 
 
-<!--EDIT DATA-->
-<!-- Fade In Modal -->
-<div on-modal-close ng-attr-id="{{ editTableId}}" ng-init="tableInstance = tableViewInit(relationDetail, relationType); editTableId = tableInstance.getCache().relationName + 'EditTable'" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="block block-themed block-transparent remove-margin-b">
-                <div class="block-header bg-primary-dark">
-                    <ul class="block-options">
-                        <li>
-                            <button  data-dismiss="modal" type="button"><i class="si si-close"></i></button>
-                        </li>
-                    </ul>
-                    <h3 class="block-title">{{ tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
+    <!--EDIT DATA-->
+    <!-- Fade In Modal -->
+    <div on-modal-close ng-attr-id="{{editTableId}}"  class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="block block-themed block-transparent remove-margin-b">
+                    <div class="block-header bg-primary-dark">
+                        <ul class="block-options">
+                            <li>
+                                <button  data-dismiss="modal" type="button"><i class="si si-close"></i></button>
+                            </li>
+                        </ul>
+                        <h3 class="block-title">{{tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
+                    </div>
+                    <div ng-if="tableInstance.getCache().schema.validations" class="block-content block-content-narrow">
+                        <form name="tableInstance.getCache().schema.form"  ng-validate="tableInstance.getCache().schema.validations" novalidate  class="form-horizontal">
+                            <formly-form  model="tableInstance.getCache().settings.saveFormData" fields="tableInstance.getCache().schema.fields"></formly-form>
+                        </form>
+                    </div><!--block-content-->
                 </div>
-                <div ng-if="tableInstance.getCache().schema.validations" class="block-content block-content-narrow">
+                <!-- ng disabled removed as now ng-disabled="!enableButton(schema.form)" -->
+                <div class="modal-footer">
+                    <button data-target="#{{ editTableId}}"   class="btn btn-sm btn-default "  type="button" data-dismiss="modal">Close</button>
+                    <button class="btn btn-sm btn-default "  style="margin-right:20px;" type="button" ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)">Reset data</button>
+                    <button
 
-                    <form name="tableInstance.getCache().schema.form"  ng-validate="tableInstance.getCache().schema.validations" novalidate  class="form-horizontal">
-                        <formly-form   model="tableInstance.getCache().settings.saveFormData" fields="tableInstance.getCache().schema.fields"></formly-form>
-                    </form>
-                </div><!--block-content-->
-            </div>
-            <!-- ng disabled removed as now ng-disabled="!enableButton(schema.form)" -->
-            <div class="modal-footer">
-                <button data-target="#{{ editTableId}}"   class="btn btn-sm btn-default "  type="button" data-dismiss="modal">Close</button>
-                <button class="btn btn-sm btn-default "  style="margin-right:20px;" type="button" ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)">Reset data</button>
-                <button
-
-                        class="btn btn-sm btn-default"
-                        ng-click="tableInstance.saveForm(tableInstance.getCache().schema, tableInstance.getCache().schema.form,  tableInstance.getCache().settings.saveFormData, true, modelIdWithHash)">
-                    <i class="fa fa-save"></i>
-                    Save
-                </button>
-                <button
-                        ng-init="modelIdWithHash= '#' + editTableId"
-                        type="submit"
-                        class="btn btn-sm bg-primary-dark"
-                        style="color:#fff;"
-                        ng-click="tableInstance.saveForm(tableInstance.getCache().schema, tableInstance.getCache().schema.form, tableInstance.getCache().settings.saveFormData, false)" >
-                    <i class="fa fa-save"></i>
-                    Save and add another
-                </button>
+                            class="btn btn-sm btn-default"
+                            ng-click="tableInstance.saveForm(tableInstance.getCache().schema, tableInstance.getCache().schema.form,  tableInstance.getCache().settings.saveFormData, true, modelIdWithHash)">
+                        <i class="fa fa-save"></i>
+                        Save
+                    </button>
+                    <button
+                            ng-init="modelIdWithHash= '#' + editTableId"
+                            type="submit"
+                            class="btn btn-sm bg-primary-dark"
+                            style="color:#fff;"
+                            ng-click="tableInstance.saveForm(tableInstance.getCache().schema, tableInstance.getCache().schema.form, tableInstance.getCache().settings.saveFormData, false)" >
+                        <i class="fa fa-save"></i>
+                        Save and add another
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+    <!--MODAL-->
+
 </div>
+
 
 
