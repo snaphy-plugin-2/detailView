@@ -3,13 +3,32 @@
     <div ng-cloak class="block " ng-class="{'block-opt-refresh': tableInstance.getCache().settings.isLoading}" >
         <div class="block-header">
             <ul class="block-options">
-                <li ng-hide="relationDetail.action.create === false">
+                <button
+                        class="btn  btn-default"
+                        data-target="#{{ editTableId}}"
+                        ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)"
+                        data-toggle="modal"
+                        title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}"
+                        data-original-title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}">
+                    <i class="si si-plus"></i>
+                    Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}
+                </button>
+                <!--<li ng-hide="relationDetail.action.create === false">
                     <button type="button" data-target="#{{ editTableId}}"   ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)" data-toggle="modal" title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}" data-original-title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}"><i class="si si-plus"></i></button>
-                </li>
+                </li>-->
                 <li>
                     <button ng-click="tableInstance.resetAll()" type="button" data-toggle="block-option" data-action="refresh_toggle"  ><i class="si si-refresh"></i></button>
                 </li>
             </ul>
+            <!--<ul class="block-options">
+                <li ng-hide="relationDetail.action.create === false">
+                    <button type="button" data-target="#{{ editTableId}}"   ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)" data-toggle="modal" title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}" data-original-title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}">
+                        <i class="si si-plus"></i></button>
+                </li>
+                <li>
+                    <button ng-click="tableInstance.resetAll()" type="button" data-toggle="block-option" data-action="refresh_toggle"  ><i class="si si-refresh"></i></button>
+                </li>
+            </ul>-->
             <h3 class="block-title">{{ tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
         </div>
         <div st-pipe="tableInstance.refreshData" ng-init="tableId = tableInstance.getCache().relationName + 'Table'"  st-table="tableInstance.getCache().displayed" class="block-content">
