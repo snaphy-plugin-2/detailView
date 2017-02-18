@@ -3,7 +3,7 @@
     <div ng-cloak class="block " ng-class="{'block-opt-refresh': tableInstance.getCache().settings.isLoading}" >
         <div class="block-header">
             <ul class="block-options">
-                <button
+                <button ng-hide="relationDetail.action.create === false"
                         class="btn  btn-default"
                         data-target="#{{ editTableId}}"
                         ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)"
