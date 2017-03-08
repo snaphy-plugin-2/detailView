@@ -1,7 +1,7 @@
 <div  class="col-sm-12 content" ng-init="tableInstance = tableViewInit(relationDetail, relationType); editTableId = tableInstance.getCache().relationName + 'EditTable'">
     <!-- Dynamic Table Full -->
     <div ng-cloak class="block " ng-class="{'block-opt-refresh': tableInstance.getCache().settings.isLoading}" >
-        <div class="block-header">
+        <div ng-hide="relationDetail.action.showHeader === false" class="block-header">
             <ul class="block-options">
                 <button ng-hide="relationDetail.action.create === false"
                         class="btn  btn-default"
