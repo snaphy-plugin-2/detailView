@@ -220,7 +220,8 @@ angular.module($snaphy.getModuleName())
                             backupData: {},
                             //Inline search data object
                             //Store data of inline search associated with each table header.
-                            inlineSearch:{}
+                            inlineSearch:{},
+                            form: {}
                         };
                     };
 

@@ -299,19 +299,17 @@
                         <h3 class="block-title">{{tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
                     </div>
                     <div ng-if="tableInstance.getCache().schema.validations" class="block-content block-content-narrow">
-                        <form name="tableInstance.getCache().schema.form"  ng-validate="tableInstance.getCache().schema.validations" novalidate  class="form-horizontal">
+                        <form name="tableInstance.getCache().settings.form"  ng-validate="tableInstance.getCache().schema.validations" novalidate  class="form-horizontal">
                             <formly-form  model="tableInstance.getCache().settings.saveFormData" fields="tableInstance.getCache().schema.fields"></formly-form>
                         </form>
                     </div><!--block-content-->
                 </div>
-                <!-- ng disabled removed as now ng-disabled="!enableButton(schema.form)" -->
+                <!-- ng disabled removed as now ng-disabled="!enableButton(settings.form)" -->
                 <div class="modal-footer">
                     <button data-target="#{{ editTableId}}"   class="btn btn-sm btn-default "  type="button" data-dismiss="modal">Close</button>
-                    <button class="btn btn-sm btn-default "  style="margin-right:20px;" type="button" ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)">Reset data</button>
-                    <button
-
-                            class="btn btn-sm btn-default"
-                            ng-click="tableInstance.saveForm(tableInstance.getCache().schema, tableInstance.getCache().schema.form,  tableInstance.getCache().settings.saveFormData, true, modelIdWithHash)">
+                    <button class="btn btn-sm btn-default "  style="margin-right:20px;" type="button" ng-click="tableInstance.resetSavedForm(tableInstance.getCache().settings.form)">Reset data</button>
+                    <button class="btn btn-sm btn-default"
+                            ng-click="tableInstance.saveForm(tableInstance.getCache().schema, tableInstance.getCache().settings.form,  tableInstance.getCache().settings.saveFormData, true, modelIdWithHash)">
                         <i class="fa fa-save"></i>
                         Save
                     </button>
