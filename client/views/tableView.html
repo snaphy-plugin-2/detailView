@@ -2,7 +2,7 @@
     <!-- Dynamic Table Full -->
     <div ng-cloak class="block " ng-class="{'block-opt-refresh': tableInstance.getCache().settings.isLoading}" >
         <div class="block-header">
-            <ul class="block-options">
+            <ul ng-if="!tableInstance.getCache().label" class="block-options">
                 <button ng-hide="relationDetail.action.create === false"
                         class="btn  btn-default"
                         data-target="#{{ editTableId}}"
@@ -13,23 +13,28 @@
                     <i class="si si-plus"></i>
                     Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}
                 </button>
-                <!--<li ng-hide="relationDetail.action.create === false">
-                    <button type="button" data-target="#{{ editTableId}}"   ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)" data-toggle="modal" title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}" data-original-title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}"><i class="si si-plus"></i></button>
-                </li>-->
                 <li>
                     <button ng-click="tableInstance.resetAll()" type="button" data-toggle="block-option" data-action="refresh_toggle"  ><i class="si si-refresh"></i></button>
                 </li>
             </ul>
-            <!--<ul class="block-options">
-                <li ng-hide="relationDetail.action.create === false">
-                    <button type="button" data-target="#{{ editTableId}}"   ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)" data-toggle="modal" title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}" data-original-title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}">
-                        <i class="si si-plus"></i></button>
-                </li>
+            <ul ng-if="tableInstance.getCache().label" class="block-options">
+                <button ng-hide="relationDetail.action.create === false"
+                        class="btn  btn-default"
+                        data-target="#{{ editTableId}}"
+                        ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)"
+                        data-toggle="modal"
+                        title="Add {{ tableInstance.getCache().label | camelCaseToSpaces}}"
+                        data-original-title="Add {{ tableInstance.getCache().label | camelCaseToSpaces}}">
+                    <i class="si si-plus"></i>
+                    Add {{ tableInstance.getCache().label | camelCaseToSpaces}}
+
+                </button>
                 <li>
                     <button ng-click="tableInstance.resetAll()" type="button" data-toggle="block-option" data-action="refresh_toggle"  ><i class="si si-refresh"></i></button>
                 </li>
-            </ul>-->
-            <h3 class="block-title">{{ tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
+            </ul>
+            <h3 ng-if="!tableInstance.getCache().label" class="block-title">{{ tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
+            <h3 ng-if="tableInstance.getCache().label" class="block-title">{{ tableInstance.getCache().label | camelCaseToSpaces}} Data</h3>
         </div>
         <div st-pipe="tableInstance.refreshData" ng-init="tableId = tableInstance.getCache().relationName + 'Table'"  st-table="tableInstance.getCache().displayed" class="block-content">
             <div  class="table-responsive" style="overflow-x: hidden;">
@@ -296,7 +301,8 @@
                                 <button  data-dismiss="modal" type="button"><i class="si si-close"></i></button>
                             </li>
                         </ul>
-                        <h3 class="block-title">{{tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
+                        <h3 ng-if="!tableInstance.getCache().label" class="block-title">{{tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
+                        <h3 ng-if="tableInstance.getCache().label" class="block-title">{{tableInstance.getCache().label | camelCaseToSpaces}} Data</h3>
                     </div>
                     <div ng-if="tableInstance.getCache().schema.validations" class="block-content block-content-narrow">
                         <form name="tableInstance.getCache().schema.form"  ng-validate="tableInstance.getCache().schema.validations" novalidate  class="form-horizontal">
