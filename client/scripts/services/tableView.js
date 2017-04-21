@@ -97,6 +97,7 @@ angular.module($snaphy.getModuleName())
                 if (form) {
                     form.$setPristine();
                 }
+                fireHookBeforeSave(getCache().settings.saveFormData);
             };
 
 
@@ -611,9 +612,9 @@ angular.module($snaphy.getModuleName())
                 try {
                     //TODO Removing find alternate for  form.$dirty
                     if (form.validate()) {
-                        if ($.isEmptyObject(form.$error)) {
-                            return true;
-                        }
+                        //if ($.isEmptyObject(form.$error)) {
+                        return true;
+                        //}
                     }
                 } catch (err) {
                     return false;
