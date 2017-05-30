@@ -11,11 +11,12 @@ var settings = {
   //add template name to add template path..for those not give template.. by default template will be used..
   "addRoutes":{
       //State name...
-      "addSubscription": {
-        "url": "/add/customer/:id",
+      /*"addSubscription": {
+        "url": "/add",
         "templateUrl": "/danzFoodsPlugin/views/mainDataEntry.html",
         "controller": "addSubscription"
-      }
+      },
+    */
   }
 };
 
