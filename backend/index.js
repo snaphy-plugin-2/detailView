@@ -122,10 +122,11 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 					}
 
 					var belongsToSchema = {
-						type           : "belongsTo",
+						type           : relationObj.templateOptions.type || "belongsTo",
 						key            : relationName,
 						templateOptions: relationObj.templateOptions
 					};
+
 					belongsToSchema.templateOptions.model      = relationObj.model;
 					belongsToSchema.templateOptions.foreignKey = relationObj.foreignKey === "" ? relationName + 'Id' : relationObj.foreignKey;
 					//Now add nested schema to the relational model.
@@ -284,6 +285,23 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 	};
 
 
+    /**
+     *  Intiailize the container object for a container type
+     * @returns {{class: Array, style: {}, schema: Array, options: {}}}
+     */
+	const initializeContainer = function () {
+		return {
+            //Class in form or array..
+		    class: [],
+            style:{},
+            //Store schema for the given container
+            schema:[],
+            //For storing additional options..
+            options:{}
+		};
+    };
+
+
 	/**
 	 * Generate formly template structure for data entry schema. Also add relations
 	 * @param app
@@ -303,7 +321,7 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 		//Start adding container..
 		schema.container = {};
 		//Store different fields by their name,,
-		schema.container.default   = schema.container.default || [];
+		schema.container.default   = schema.container.default || initializeContainer();
 		const validationModelObj = helper.getValidationObj(modelName);
 		//{validationsBackend, complexValidation}
 
@@ -356,15 +374,15 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 
 					if(propObj.templateOptions){
 						if(propObj.templateOptions.container){
-							schema.container[propObj.templateOptions.container] = schema.container[propObj.templateOptions.container] || [];
-							schema.container[propObj.templateOptions.container].push(propObj);
+							schema.container[propObj.templateOptions.container] = schema.container[propObj.templateOptions.container] || initializeContainer();
+							schema.container[propObj.templateOptions.container].schema.push(propObj);
 						}else{
-							schema.container.default   = schema.container.default || [];
-							schema.container.default.push(propObj);
+							schema.container.default   = schema.container.default || initializeContainer();
+							schema.container.default.schema.push(propObj);
 						}
 					}else{
-						schema.container.default   = schema.container.default || [];
-						schema.container.default.push(propObj);
+						schema.container.default   = schema.container.default || initializeContainer();
+						schema.container.default.schema.push(propObj);
 					}
 
 				}
