@@ -15,8 +15,8 @@
                 <div class="block-content block-content-full">
                     <form name="detailSchema.form" ng-validate="detailSchema.validations" novalidate  class="form-horizontal">
                         <!--Add customer class and style related to this..-->
-                        <div class="">
-                            <formly-form   model="detailSchemaData" fields="container" ng-repeat="container in detailSchema.container"></formly-form>
+                        <div ng-class="container.class" ng-style="container.style" ng-repeat="container in detailSchema.container">
+                            <formly-form   model="detailSchemaData" fields="container.schema" ></formly-form>
                         </div>
 
                     </form>

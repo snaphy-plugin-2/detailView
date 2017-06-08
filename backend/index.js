@@ -154,12 +154,12 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 					addNestedModelRelation(app, belongsToSchema.templateOptions, relatedModelRelations, relationObj.model);
 
 					if(relations[relationName].templateOptions.container){
-						schema.container[relations[relationName].templateOptions.container] = schema.container[relations[relationName].templateOptions.container] || [];
-						schema.container[relations[relationName].templateOptions.container].push(belongsToSchema);
+						schema.container[relations[relationName].templateOptions.container] = schema.container[relations[relationName].templateOptions.container] || initializeContainer();;
+						schema.container[relations[relationName].templateOptions.container].schema.push(belongsToSchema);
 					}else{
 						//Now add this to the schema..
-						schema.container.default = schema.container.default || [];
-						schema.container.default.push(belongsToSchema);
+						schema.container.default = schema.container.default || initializeContainer();
+						schema.container.default.schema.push(belongsToSchema);
 						//schema.fields.push(belongsToSchema);
 					}
 
@@ -301,6 +301,30 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 		};
     };
 
+    /**
+     * Add container definition like class or style..
+     * @param schema
+     * @param tableObj
+     */
+	const addContainerSettings = function (schema, tableObj) {
+	    if(tableObj.container){
+	        for(const containerName in tableObj.container){
+	            if(tableObj.container.hasOwnProperty(containerName)){
+                    //initializeContainer();
+                    schema.container[containerName] = schema.container[containerName] || initializeContainer();
+                    let settings = tableObj.container[containerName];
+                    //Assign properties value to schema..
+                    for(const prop in settings){
+                        if(settings.hasOwnProperty(prop)){
+                            schema.container[containerName][prop] = settings[prop];
+                        }
+                    }
+                }
+            }
+        }
+        return schema;
+    };
+
 
 	/**
 	 * Generate formly template structure for data entry schema. Also add relations
@@ -323,7 +347,19 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 		//Store different fields by their name,,
 		schema.container.default   = schema.container.default || initializeContainer();
 		const validationModelObj = helper.getValidationObj(modelName);
+		//path of table data from //common/table/model.json data
+		const tableModelObj = helper.getTablePath(modelName);
+		//Actual table object data..
+		let tableModelData = {};
 		//{validationsBackend, complexValidation}
+        if(tableModelObj){
+            if(tableModelObj.json){
+                tableModelData = helper.readPackageJsonFile(tableModelObj.json);
+            }
+        }
+
+        //Add container settings stored in table definitions..file..
+        addContainerSettings(schema, tableModelData);
 
 		let
 			validationObj,
