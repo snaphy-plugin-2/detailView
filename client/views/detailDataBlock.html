@@ -5,14 +5,20 @@
             <div ng-cloak id="detailViewWidget" class="block">
                 <div class="block-header">
                     <ul class="block-options">
-                        <li>
-                            <button ng-click="resetData()" type="button" data-toggle="block-option" data-action="refresh_toggle"  ><i class="si si-refresh"></i></button>
-                        </li>
+                        <button
+                                type="submit"
+                                class="btn btn-sm bg-primary-dark"
+                                style="color:#fff;"
+                                ng-disabled="disableDetailViewButton"
+                                ng-click="saveForm(detailSchema, detailSchema.form, detailSchemaData)" >
+                            <i class="fa fa-save"></i>
+                            Save
+                        </button>
                     </ul>
                     <h3 class="block-title">Customer Data</h3>
                 </div>
 
-                <div class="block-content block-content-full">
+                <div class="block-content block-content-full" style="padding-top: 0;">
                     <form name="detailSchema.form" ng-validate="detailSchema.validations" novalidate  class="form-horizontal">
                         <!--Add customer class and style related to this..-->
                         <div ng-class="container.class" ng-style="container.style" ng-repeat="container in detailSchema.container">
@@ -25,6 +31,7 @@
                 <div class="block-content block-content-mini block-content-full">
                     <div class="row">
                         <div class="col-xs-12 text-right">
+<!--
                             <button
                                     type="submit"
                                     class="btn btn-sm bg-primary-dark"
@@ -34,10 +41,10 @@
                                 <i class="fa fa-save"></i>
                                 Update Data
                             </button>
+-->
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
