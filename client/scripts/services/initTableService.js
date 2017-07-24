@@ -7,7 +7,8 @@
 }());
 angular.module($snaphy.getModuleName())
 //Define your services here..
-    .factory('InitTableService', ['DetailViewResource', 'ImageUploadingTracker', function(DetailViewResource, ImageUploadingTracker) {
+    .factory('InitTableService', ['DetailViewResource', 'ImageUploadingTracker', 'Resource', 'TableViewResource', 'SnaphyCache', 'SnaphyTemplate'
+        function(DetailViewResource, ImageUploadingTracker, Resource, TableViewResource, SnaphyCache, SnaphyTemplate) {
 
         /**
          * Will initialize the tabular data of tableView
