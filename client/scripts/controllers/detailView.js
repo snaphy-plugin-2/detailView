@@ -5,9 +5,11 @@
 angular.module($snaphy.getModuleName())
 
 //Controller for detailViewControl ..
-.controller('detailViewControl', ['$scope', '$stateParams', 'Database', "DetailViewResource", "Resource", "ImageUploadingTracker", "SnaphyTemplate",  "SnaphyCache", "TableViewResource",
-    function($scope, $stateParams, Database, DetailViewResource, Resource, ImageUploadingTracker, SnaphyTemplate, SnaphyCache, TableViewResource) {
+.controller('detailViewControl',
+    ['$scope', '$stateParams', 'Database', "DetailViewResource", "InitTableService",
+    function($scope, $stateParams, Database, DetailViewResource, InitTableService) {
         //---------------------------------------GLOBAL VALUES-------------------------------
+
         //Checking if default templating feature is enabled..
         var defaultTemplate = $snaphy.loadSettings('detailView', "defaultTemplate");
         $snaphy.setDefaultTemplate(defaultTemplate);
@@ -53,16 +55,13 @@ angular.module($snaphy.getModuleName())
                        }, function(error){
                             console.error(error);
                        });
-
                }else{
                    //TODO: Go to default template.
                    //Notify unknown location..
-
                }
             }else{
                 //TODO: Go to default template..
                 //Notfiy unknown location..
-
             }
         };
 
@@ -118,7 +117,6 @@ angular.module($snaphy.getModuleName())
 
 
 
-
         /**
          * fetch the detailData of the current model from the server..
          */
@@ -134,6 +132,7 @@ angular.module($snaphy.getModuleName())
                 console.error(error);
             });
         };
+
 
 
         /**
@@ -164,7 +163,8 @@ angular.module($snaphy.getModuleName())
             });
         };
 
-
+        //TableViewInit
+        $scope.tableViewInit = InitTableService.tableViewInit($scope, modelName, modelId);
 
 
         //Call the init method..

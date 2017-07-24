@@ -184,6 +184,8 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 		}
 	};
 
+
+
 	/**
 	 * Generate the relation schema for each model...
 	 * @param app
@@ -205,6 +207,7 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 			for(let relationName in relationObj){
 				if(relationObj.hasOwnProperty(relationName)){
 					var relationData = relationObj[relationName];
+
 					if(relationData.type === "hasOne"){
 						let obj = {
 							relationName: relationName,
@@ -226,10 +229,12 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 							let relationModelObj = app.models[relationModelName];
 							let relationsObjArray = relationModelObj.definition.settings.relations;
 							let searchedRelationData = findRelationByModelName(modelName, relationsObjArray);
+
 							if(searchedRelationData){
 								let obj = {
 									relationName: relationName,
 									modelName: relationData.model,
+                                    relationKey: searchedRelationData.relationName,
 									searchId: getSearchId(searchedRelationData),
 									through: relationModelName
 								};
@@ -245,6 +250,7 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 								let obj = {
 									relationName: relationName,
 									modelName: relationData.model,
+									relationKey: searchedRelationData.relationName,
 									searchId: getSearchId(searchedRelationData)
 								};
 								schema.relations.hasMany.push(obj);
@@ -275,7 +281,8 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 		for(let key in relationsObjArray){
 			if(relationsObjArray.hasOwnProperty(key)){
 				if(relationsObjArray[key].model === modelName){
-					relationData = relationsObjArray[key];
+					relationData = JSON.parse(JSON.stringify(relationsObjArray[key]));
+					relationData.relationName = key;
 					break;
 				}
 			}

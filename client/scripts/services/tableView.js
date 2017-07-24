@@ -51,6 +51,7 @@ angular.module($snaphy.getModuleName())
             };
 
 
+
             /**
              * Return the params for ui-sref for onClick
              * @param params
@@ -229,12 +230,10 @@ angular.module($snaphy.getModuleName())
                             };
                         }
                     }
-
-
                 }
-
                 return where;
             };
+
 
 
 
@@ -370,10 +369,8 @@ angular.module($snaphy.getModuleName())
                                 }, function(err){
                                     console.error(err);
                                 });
-
                             }
                         }
-
                     }
 
                 }

@@ -7,14 +7,14 @@
 }());
 angular.module($snaphy.getModuleName())
 //Define your services here..
-    .factory('InitTableService', ['DetailViewResource', 'ImageUploadingTracker', 'Resource', 'TableViewResource', 'SnaphyCache', 'SnaphyTemplate'
+    .factory('InitTableService', ['DetailViewResource', 'ImageUploadingTracker', 'Resource', 'TableViewResource', 'SnaphyCache', 'SnaphyTemplate',
         function(DetailViewResource, ImageUploadingTracker, Resource, TableViewResource, SnaphyCache, SnaphyTemplate) {
 
         /**
          * Will initialize the tabular data of tableView
          * Utilizes the concept of memoization and closure
          */
-        var tableViewInit = function(){
+        var tableViewInit = function($scope, modelName, modelId){
             var cache = {};
             return function(relationDetail, relationType){
                 var relationName = relationDetail.relationName;
@@ -46,6 +46,14 @@ angular.module($snaphy.getModuleName())
                         if(relationDetail.searchId){
                             cache[relationName].where[relationDetail.searchId] = modelId;
                         }
+
+                        //Add before save hook..
+                        cache[relationName].beforeSaveHook = [
+                            function (data) {
+                                //Explicitily add model id..
+                                data[relationDetail.searchId] = modelId;
+                            }
+                        ];
 
                         //This object all the settings related to current dataContainer of table view.
                         cache[relationName].settings = {
@@ -158,6 +166,8 @@ angular.module($snaphy.getModuleName())
                         if ($.isEmptyObject(dataContainer.schema )) {
                             //First get the schema..
                             Resource.getSchema(modelName, function(schema) {
+                                schema = removeParentRelationFromSchema(schema, dataContainer);
+
                                 //Populate the schema..
                                 dataContainer.schema = schema;
                                 //Store the schema to the localstorage..
@@ -217,6 +227,64 @@ angular.module($snaphy.getModuleName())
                     return returnObj;
                 }
             };
+        };
+
+
+
+        /**
+         * Remove Parent relation from schema.
+         * @param schema
+         * @param dataContainer
+         */
+        var removeParentRelationFromSchema = function(schema, dataContainer){
+            //Remove from relation... and from fields. and from header..
+            if(schema.relations && dataContainer.relationKey){
+                if(schema.relations.hasOne){
+                    var index = schema.relations.hasOne.indexOf(dataContainer.relationKey);
+                    if(index > -1){
+                        schema.relations.hasOne.splice(index, 1);
+                    }
+                }
+                if(schema.relations.belongsTo){
+                    var index = schema.relations.belongsTo.indexOf(dataContainer.relationKey);
+                    if(index > -1){
+                        schema.relations.belongsTo.splice(index, 1);
+                    }
+                }
+            }
+
+            if(schema.fields && dataContainer.relationKey){
+                var removeIndex = [];
+                for(var i=0; i<schema.fields.length; i++){
+                    var field = schema.fields[i];
+                    if(field){
+                        if(field.key === dataContainer.relationKey){
+                            removeIndex.push(i);
+                        }
+                    }
+                }
+
+                removeIndex.forEach(function (index) {
+                    schema.fields.splice(index, 1);
+                });
+            }
+
+            if(schema.header && dataContainer.relationKey){
+                var headerList = schema.header;
+                schema.header = [];
+                for(var j=0; j < headerList.length;j++){
+                    var header = headerList[j];
+                    if(header){
+                        var pattern = new RegExp(dataContainer.relationKey + ".+");
+                        if(!pattern.test(header)){
+                            schema.header.push(header);
+                        }
+                    }
+                }
+
+            }
+
+            return schema;
 
         };
 
