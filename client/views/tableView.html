@@ -3,7 +3,9 @@
     <div ng-cloak class="block " ng-class="{'block-opt-refresh': tableInstance.getCache().settings.isLoading}" >
         <div  ng-hide="relationDetail.action.showHeader === false" class="block-header">
             <ul ng-if="!tableInstance.getCache().label" class="block-options">
-                <button ng-hide="relationDetail.action.create === false"
+                <button
+                        ng-if="tableInstance.getCache().schema.settings.create !== false"
+                        ng-hide="relationDetail.action.create === false"
                         class="btn  btn-default"
                         data-target="#{{ editTableId}}"
                         ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)"
@@ -13,12 +15,15 @@
                     <i class="si si-plus"></i>
                     Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}
                 </button>
+
                 <li>
                     <button ng-click="tableInstance.resetAll()" type="button" data-toggle="block-option" data-action="refresh_toggle"  ><i class="si si-refresh"></i></button>
                 </li>
             </ul>
             <ul ng-if="tableInstance.getCache().label" class="block-options">
-                <button ng-hide="relationDetail.action.create === false"
+                <button
+                        ng-if="tableInstance.getCache().schema.settings.create !== false"
+                        ng-hide="relationDetail.action.create === false"
                         class="btn  btn-default"
                         data-target="#{{ editTableId}}"
                         ng-click="tableInstance.resetSavedForm(tableInstance.getCache().schema.form)"
@@ -29,6 +34,7 @@
                     Add {{ tableInstance.getCache().label | camelCaseToSpaces}}
 
                 </button>
+
                 <li>
                     <button ng-click="tableInstance.resetAll()" type="button" data-toggle="block-option" data-action="refresh_toggle"  ><i class="si si-refresh"></i></button>
                 </li>
