@@ -6,8 +6,8 @@ angular.module($snaphy.getModuleName())
 
 //Controller for detailViewControl ..
 .controller('detailViewControl',
-    ['$scope', '$stateParams', 'Database', "DetailViewResource", "InitTableService",
-    function($scope, $stateParams, Database, DetailViewResource, InitTableService) {
+    ['$scope', '$stateParams', 'Database', "DetailViewResource", "InitTableService", "$window",
+    function($scope, $stateParams, Database, DetailViewResource, InitTableService, $window) {
         //---------------------------------------GLOBAL VALUES-------------------------------
 
         //Checking if default templating feature is enabled..
@@ -30,6 +30,11 @@ angular.module($snaphy.getModuleName())
             select2: false
         };
         //-------------------------------------------------------------------------------------
+
+
+        $scope.goBack = function () {
+            $window.history.back();
+        };
 
 
         var init = function(){

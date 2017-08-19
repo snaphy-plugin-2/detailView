@@ -319,7 +319,11 @@
                 <!-- ng disabled removed as now ng-disabled="!enableButton(settings.form)" -->
                 <div class="modal-footer">
                     <button data-target="#{{ editTableId}}"   class="btn btn-sm btn-default "  type="button" data-dismiss="modal">Close</button>
-                    <button class="btn btn-sm btn-default "  style="margin-right:20px;" type="button" ng-click="tableInstance.resetSavedForm(tableInstance.getCache().settings.form)">Reset data</button>
+                    <button class="btn btn-sm btn-default"
+                            ng-if="!tableInstance.getCache().settings.saveFormData.id"
+                            style="margin-right:20px;"
+                            type="button"
+                            ng-click="tableInstance.resetSavedForm(tableInstance.getCache().settings.form)">Reset data</button>
                     <button class="btn btn-sm btn-default"
                             ng-click="tableInstance.saveForm(tableInstance.getCache().schema, tableInstance.getCache().settings.form,  tableInstance.getCache().settings.saveFormData, true, modelIdWithHash)">
                         <i class="fa fa-save"></i>
