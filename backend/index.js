@@ -257,9 +257,9 @@ module.exports = function( server, databaseObj, helper, packageObj) {
                     const checkRelationEditAccess_ = automata.checkRelationEditAccess(relationObj, roleList);
                     //Only allow if reject value is set to be false..
                     if(!checkRelationEditAccess_){
-                        if(relations[relationName].templateOptions.container){
-                            schema.container[relations[relationName].templateOptions.container] = schema.container[relations[relationName].templateOptions.container] || automata.initializeContainer();
-                            schema.container[relations[relationName].templateOptions.container].schema.push(belongsToSchema);
+                        if(relations[relationName].templateOptions.box){
+                            schema.container[relations[relationName].templateOptions.box] = schema.container[relations[relationName].templateOptions.box] || automata.initializeContainer();
+                            schema.container[relations[relationName].templateOptions.box].schema.push(belongsToSchema);
                         }else{
                             //Now add this to the schema..
                             schema.container.default = schema.container.default || automata.initializeContainer();
@@ -493,9 +493,9 @@ module.exports = function( server, databaseObj, helper, packageObj) {
                         }
 
                         if (propObj.templateOptions) {
-                            if (propObj.templateOptions.container) {
-                                schema.container[propObj.templateOptions.container] = schema.container[propObj.templateOptions.container] || automata.initializeContainer();
-                                schema.container[propObj.templateOptions.container].schema.push(propObj);
+                            if (propObj.templateOptions.box) {
+                                schema.container[propObj.templateOptions.box] = schema.container[propObj.templateOptions.box] || automata.initializeContainer();
+                                schema.container[propObj.templateOptions.box].schema.push(propObj);
                             } else {
                                 schema.container.default = schema.container.default || automata.initializeContainer();
                                 schema.container.default.schema.push(propObj);
