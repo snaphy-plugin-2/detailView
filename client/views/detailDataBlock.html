@@ -19,12 +19,12 @@
                             Save
                         </button>
                     </ul>
-                    <h3 class="block-title">Customer Data</h3>
+                    <h3 class="block-title">{{detailSchema.model}} Data Management</h3>
                 </div>
 
                 <div class="block-content block-content-full" style="padding-top: 0;">
                     <form name="detailSchema.form" ng-validate="detailSchema.validations" novalidate  class="form-horizontal">
-                        <!--Add customer class and style related to this..-->
+                        <!--Add container class and style related to this..-->
                         <div ng-class="container.class" ng-style="container.style" ng-repeat="container in detailSchema.container">
                             <formly-form   model="detailSchemaData" fields="container.schema" ></formly-form>
                         </div>
