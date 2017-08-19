@@ -36,6 +36,18 @@ angular.module($snaphy.getModuleName())
             $window.history.back();
         };
 
+        $scope.isFieldsNotEmpty = function(containers){
+            var count = 0;
+            for(var key in containers){
+                if(containers.hasOwnProperty(key)){
+                    if(containers[key].schema.length){
+                        count++;
+                    }
+                }
+            }
+            return count > 0? true: false;
+        };
+
 
         var init = function(){
             if(modelName){

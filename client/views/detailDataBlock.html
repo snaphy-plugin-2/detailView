@@ -10,6 +10,7 @@
                                 type="button"
                                 ng-click="goBack()">Go Back</button>
                         <button
+                                ng-if="isFieldsNotEmpty(detailSchema.container)"
                                 type="submit"
                                 class="btn btn-sm bg-primary-dark"
                                 style="color:#fff;"
