@@ -7,8 +7,8 @@
 }());
 angular.module($snaphy.getModuleName())
 //Define your services here..
-    .factory('InitTableService', ['DetailViewResource', 'ImageUploadingTracker', 'Resource', 'TableViewResource', 'SnaphyCache', 'SnaphyTemplate',
-        function(DetailViewResource, ImageUploadingTracker, Resource, TableViewResource, SnaphyCache, SnaphyTemplate) {
+    .factory('InitTableService', ['DetailViewResource', 'ImageUploadingTracker', 'Resource', 'TableViewResource', 'SnaphyCache', 'SnaphyTemplate', "$state",
+        function(DetailViewResource, ImageUploadingTracker, Resource, TableViewResource, SnaphyCache, SnaphyTemplate, $state) {
 
         /**
          * Will initialize the tabular data of tableView
@@ -217,12 +217,33 @@ angular.module($snaphy.getModuleName())
                         }
                     };
 
+                    /**
+                     * Open custom url of form on save.
+                     * @param schema
+                     */
+                    var openCustomUrl = function (schema) {
+                        if(schema.settings){
+                            if(schema.settings.form){
+                                if(schema.settings.form.url){
+                                    if(schema.settings.form.target === "_blank"){
+                                        var url = $state.href(schema.settings.form.url, {});
+                                        window.open(url, 'blank');
+                                    }else{
+                                        $state.go(schema.settings.form.url);
+                                    }
+                                }
+                            }
+                        }
+                    };
+
                     //Copy the services method to table View resources..object..
                     var returnObj = TableViewResource(getCache, refreshData, $scope);
 
                     returnObj.getCache = getCache;
                     returnObj.refreshData = refreshData;
                     returnObj.resetAll = resetAll;
+                    returnObj.openCustomUrl = openCustomUrl;
+
 
                     return returnObj;
                 }

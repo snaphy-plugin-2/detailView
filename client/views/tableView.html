@@ -4,7 +4,17 @@
         <div  ng-hide="relationDetail.action.showHeader === false" class="block-header">
             <ul ng-if="!tableInstance.getCache().label" class="block-options">
                 <button
-                        ng-if="tableInstance.getCache().schema.settings.create !== false"
+                        ng-if="tableInstance.getCache().schema.settings.create !== false && tableInstance.getCache().schema.settings.form.preventDefault"
+                        ng-hide="relationDetail.action.create === false"
+                        class="btn  btn-default"
+                        ng-click="tableInstance.openCustomUrl(tableInstance.getCache().schema)"
+                        title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}"
+                        data-original-title="Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}">
+                    <i class="si si-plus"></i>
+                    Add {{ tableInstance.getCache().modelName | camelCaseToSpaces}}
+                </button>
+                <button
+                        ng-if="tableInstance.getCache().schema.settings.create !== false && !tableInstance.getCache().schema.settings.form.preventDefault"
                         ng-hide="relationDetail.action.create === false"
                         class="btn  btn-default"
                         data-target="#{{ editTableId}}"

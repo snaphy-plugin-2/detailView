@@ -6,8 +6,8 @@ angular.module($snaphy.getModuleName())
 
 //Controller for detailViewControl ..
 .controller('detailViewControl',
-    ['$scope', '$stateParams', 'Database', "DetailViewResource", "InitTableService", "$window",
-    function($scope, $stateParams, Database, DetailViewResource, InitTableService, $window) {
+    ['$scope', '$stateParams', 'Database', "DetailViewResource", "InitTableService", "$window", "$timeout",
+    function($scope, $stateParams, Database, DetailViewResource, InitTableService, $window, $timeout) {
         //---------------------------------------GLOBAL VALUES-------------------------------
 
         //Checking if default templating feature is enabled..
@@ -142,9 +142,21 @@ angular.module($snaphy.getModuleName())
             var promise = DetailViewResource.getDataFromServer($scope.detailSchema, modelId, databaseInstance);
             promise.then(function(success){
                 success = success || {};
+                var value = success.toJSON();
+               /* for(var key in value){
+                    if(value.hasOwnProperty(key)){
+                        $scope.detailSchemaData[key] = value[key];
+                    }
+                }*/
+
+
                 //NOTE: here using toJSON instead of raw object will remove unwanted properties like $promise from object keeping object value clean.
                 //Now copying the data..
-                angular.copy(success.toJSON(), $scope.detailSchemaData);
+                $scope.detailSchemaData = {};
+                //$timeout(function () {
+                    angular.copy(value, $scope.detailSchemaData);
+                //}, 200);
+
             }, function(error){
                 console.error(error);
             });
