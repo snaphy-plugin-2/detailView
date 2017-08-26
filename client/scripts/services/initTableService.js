@@ -7,8 +7,9 @@
 }());
 angular.module($snaphy.getModuleName())
 //Define your services here..
-    .factory('InitTableService', ['DetailViewResource', 'ImageUploadingTracker', 'Resource', 'TableViewResource', 'SnaphyCache', 'SnaphyTemplate', "$state",
-        function(DetailViewResource, ImageUploadingTracker, Resource, TableViewResource, SnaphyCache, SnaphyTemplate, $state) {
+    .factory('InitTableService',
+        ['DetailViewResource', 'ImageUploadingTracker', 'Resource', 'TableViewResource', 'SnaphyCache', 'SnaphyTemplate', "$state", "LoginServices", "$q",
+        function(DetailViewResource, ImageUploadingTracker, Resource, TableViewResource, SnaphyCache, SnaphyTemplate, $state, LoginServices, $q) {
 
         /**
          * Will initialize the tabular data of tableView
@@ -43,9 +44,55 @@ angular.module($snaphy.getModuleName())
                         cache[relationName].displayed = [];
                         //Where object for adding filtering..
                         cache[relationName].where = {};
-                        if(relationDetail.searchId){
-                            cache[relationName].where[relationDetail.searchId] = modelId;
-                        }
+                        //Get the where query..
+                        cache[relationName].getWhere = function () {
+                            return $q(function (resolve, reject) {
+                                cache[relationName].where = cache[relationName].where || {};
+                                if(relationDetail.searchId){
+                                    cache[relationName].where[relationDetail.searchId] = modelId;
+                                }
+
+                                if(!jQuery.isEmptyObject(cache[relationName].schema)){
+                                    if(cache[relationName].schema.settings){
+                                        if(cache[relationName].schema.settings.tables){
+                                            if(cache[relationName].schema.settings.tables.beforeLoad){
+                                                LoginServices.addUserDetail.get()
+                                                    .then(function (user) {
+                                                        for(var key in cache[relationName].schema.settings.tables.beforeLoad){
+                                                            if(cache[relationName].schema.settings.tables.beforeLoad.hasOwnProperty(key)){
+                                                                var value = cache[relationName].schema.settings.tables.beforeLoad[key];
+                                                                var patt = /\$user\..+/;
+                                                                if(patt.test(value)){
+                                                                    var valueKey = value.replace(/\$user\./, "");
+                                                                    cache[relationName].where[key] = user[valueKey];
+                                                                }else{
+                                                                    cache[relationName].where[key] = value;
+                                                                }
+                                                            }
+                                                        }
+                                                    })
+                                                    .then(function () {
+                                                        resolve(cache[relationName].where);
+                                                    })
+                                                    .catch(function (error) {
+                                                        reject(error);
+                                                    });
+                                            }else{
+                                                resolve(cache[relationName].where);
+                                            }
+                                        }else{
+                                            resolve(cache[relationName].where);
+                                        }
+                                    }else{
+                                        resolve(cache[relationName].where);
+                                    }
+                                }else{
+                                    resolve(cache[relationName].where);
+                                }
+                            });
+
+                        };
+
 
                         //Add before save hook..
                         cache[relationName].beforeSaveHook = [
@@ -117,6 +164,58 @@ angular.module($snaphy.getModuleName())
                         return cache[relationName];
                     };
 
+
+
+                    /**
+                     * Add Sorting value
+                     * @param tableState
+                     * @param ctrl
+                     */
+                    var addSort = function (tableState, ctrl) {
+                        if (!cache[relationName].persistentData.stCtrl && ctrl) {
+                            cache[relationName].persistentData.stCtrl = ctrl;
+                        }
+                        if (!tableState && cache[relationName].persistentData.stCtrl) {
+                            if(cache[relationName].persistentData.stCtrl){
+                                if(!cache[relationName].persistentData.stCtrl.tableState()){
+                                    cache[relationName].persistentData.stCtrl.pipe();
+                                    return;
+                                }else{
+                                    tableState = cache[relationName].persistentData.stCtrl.tableState();
+                                }
+                            }else {
+                                cache[relationName].persistentData.stCtrl.pipe();
+                                return;
+                            }
+
+                        }
+                        if(cache[relationName].schema){
+                            if(cache[relationName].schema.settings){
+                                if(cache[relationName].schema.settings.tables){
+                                    if(cache[relationName].schema.settings.tables.sort){
+                                        if(tableState){
+                                            //Add sort
+                                            if($.isEmptyObject(tableState.sort)){
+                                                for(var key in cache[relationName].schema.settings.tables.sort){
+                                                    if(cache[relationName].schema.settings.tables.sort.hasOwnProperty(key)){
+                                                        var sortType = cache[relationName].schema.settings.tables.sort[key] === "DESC" ? true : false;
+                                                        tableState.sort = {
+                                                            predicate: key,
+                                                            reverse: sortType
+                                                        };
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+
+
                     //Refresh the data fetched from the table..
                     var refreshData = function(tableState, ctrl) {
                         //Main container for storing all the data..
@@ -160,7 +259,7 @@ angular.module($snaphy.getModuleName())
                             dataContainer.schema = SnaphyCache.getItem(modelName);
                         }
 
-                        var before = new Date().getTime();
+                        //var before = new Date().getTime();
 
                         //If absoluteSchema is not present..
                         if ($.isEmptyObject(dataContainer.schema )) {
@@ -172,19 +271,29 @@ angular.module($snaphy.getModuleName())
                                 dataContainer.schema = schema;
                                 //Store the schema to the localstorage..
                                 SnaphyCache.save(modelName, schema);
-
-                                dataContainer.where = dataContainer.where || {};
-
-                                Resource.getPage(start, number, tableState, modelName, schema, dataContainer.where).then(function(result) {
-                                    dataContainer.displayed = result.data;
-                                    //set the number of pages so the pagination can update
-                                    tableState.pagination.numberOfPages = result.numberOfPages;
-                                    dataContainer.settings.pagesReturned = result.numberOfPages;
-                                    dataContainer.settings.totalResults = result.count;
-                                    //Stop the loading bar..
-                                    dataContainer.settings.isLoading = false;
-                                    dataContainer.settings.schemaFetched = true;
-                                });
+                                addSort(tableState, ctrl);
+                                //dataContainer.where = dataContainer.where || {};
+                                dataContainer.getWhere()
+                                    .then(function (where) {
+                                        dataContainer.where = where;
+                                        return Resource.getPage(start, number, tableState, modelName, schema, dataContainer.where);
+                                    })
+                                    .then(function(result) {
+                                        dataContainer.displayed = result.data;
+                                        //set the number of pages so the pagination can update
+                                        tableState.pagination.numberOfPages = result.numberOfPages;
+                                        dataContainer.settings.pagesReturned = result.numberOfPages;
+                                        dataContainer.settings.totalResults = result.count;
+                                        //Stop the loading bar..
+                                        dataContainer.settings.isLoading = false;
+                                        dataContainer.settings.schemaFetched = true;
+                                    })
+                                    .catch(function (error) {
+                                        console.error(error);
+                                        //Stop the loading bar..
+                                        dataContainer.settings.isLoading = false;
+                                        dataContainer.settings.schemaFetched = false;
+                                    })
                             }, function(httpResp){
                                 console.error(httpResp);
                                 //Stop the loading bar..
@@ -192,28 +301,31 @@ angular.module($snaphy.getModuleName())
                                 dataContainer.settings.schemaFetched = false;
                             });
                         }else{
-                            Resource.getPage(start, number, tableState, modelName, dataContainer.schema, dataContainer.where).then(function(result) {
-                                dataContainer.displayed = result.data;
-                                tableState.pagination.numberOfPages = result.numberOfPages; //set the number of pages so the pagination can update
-                                dataContainer.settings.pagesReturned = result.numberOfPages;
-                                dataContainer.settings.totalResults = result.count;
-                                dataContainer.settings.isLoading = false;
-                                dataContainer.settings.schemaFetched = true;
-
-                                var after = new Date().getTime();
-                                console.log("Time taken to load after template load: ", after - before,  "\n");
-                            },function(httpResp){
-                                console.error(httpResp);
-                                //Stop the loading bar..
-                                dataContainer.settings.isLoading = false;
-                                dataContainer.settings.schemaFetched = false;
-                                SnaphyTemplate.notify({
-                                    message: "Error occured. Please click on the reset button to go back to normal.",
-                                    type: 'danger',
-                                    icon: 'fa fa-times',
-                                    align: 'left'
+                            addSort(tableState, ctrl);
+                            dataContainer.getWhere()
+                                .then(function (where) {
+                                    dataContainer.where = where;
+                                    return Resource.getPage(start, number, tableState, modelName, dataContainer.schema, dataContainer.where);
+                                })
+                                .then(function(result) {
+                                    dataContainer.displayed = result.data;
+                                    tableState.pagination.numberOfPages = result.numberOfPages; //set the number of pages so the pagination can update
+                                    dataContainer.settings.pagesReturned = result.numberOfPages;
+                                    dataContainer.settings.totalResults = result.count;
+                                    dataContainer.settings.isLoading = false;
+                                    dataContainer.settings.schemaFetched = true;
+                                })
+                                .catch(function (error) {
+                                    //Stop the loading bar..
+                                    dataContainer.settings.isLoading = false;
+                                    dataContainer.settings.schemaFetched = false;
+                                    SnaphyTemplate.notify({
+                                        message: "Error occured. Please click on the reset button to go back to normal.",
+                                        type: 'danger',
+                                        icon: 'fa fa-times',
+                                        align: 'left'
+                                    });
                                 });
-                            });
                         }
                     };
 

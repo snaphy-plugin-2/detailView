@@ -5,7 +5,8 @@
 
 angular.module($snaphy.getModuleName())
     //Define your services here..
-    .factory('TableViewResource', ['Database', '$q', 'ImageUploadingTracker', 'SnaphyTemplate', "$timeout", function(Database, $q, ImageUploadingTracker, SnaphyTemplate, $timeout) {
+    .factory('TableViewResource', ['Database', '$q', 'ImageUploadingTracker', 'SnaphyTemplate', "$timeout", "LoginServices",
+        function(Database, $q, ImageUploadingTracker, SnaphyTemplate, $timeout, LoginServices) {
 
         return function(getCache, refreshData, $scope){
             //Example addInlineFilterResetMethod('#automataTable', 'number', inlineSearch, header)
@@ -648,38 +649,107 @@ angular.module($snaphy.getModuleName())
              * @param modelInstance {String} referencing to the id attribute of the  form.
              */
             var saveForm = function(formStructure, formData, formModel, goBack, modelInstance) {
-                if(ImageUploadingTracker.isUploadInProgress()){
-                    SnaphyTemplate.notify({
-                        message: "Wait!! Image uploading is in progress. Please wait till the image is uploaded.",
-                        type: 'danger',
-                        icon: 'fa fa-times',
-                        align: 'left'
-                    });
-                    return false;
-                }
-
-                if (!isValid(formData)) {
-                    SnaphyTemplate.notify({
-                        message: "Error data is Invalid.",
-                        type: 'danger',
-                        icon: 'fa fa-times',
-                        align: 'left'
-                    });
-
-                    //If edit was going on revert back..
-                    if (formModel.id) {
-                        rollBackChanges();
+                return $q(function (resolve, reject) {
+                    if(ImageUploadingTracker.isUploadInProgress()){
+                        SnaphyTemplate.notify({
+                            message: "Wait!! Image uploading is in progress. Please wait till the image is uploaded.",
+                            type: 'danger',
+                            icon: 'fa fa-times',
+                            align: 'left'
+                        });
+                        return false;
                     }
-                } else {
-                    //Fire the before save hook if present..any..
-                    fireHookBeforeSave(formModel);
 
-                    //Now save the model..
-                    var baseDatabase = Database.loadDb(formStructure.model);
-                    var schema = {
-                        "relation": getCache().schema.relations
-                    };
+                    if (!isValid(formData)) {
+                        SnaphyTemplate.notify({
+                            message: "Error data is Invalid.",
+                            type: 'danger',
+                            icon: 'fa fa-times',
+                            align: 'left'
+                        });
 
+                        //If edit was going on revert back..
+                        if (formModel.id) {
+                            rollBackChanges();
+                        }
+                    } else {
+                        //Fire the before save hook if present..any..
+                        fireHookBeforeSave(formModel);
+
+                        //Now save the model..
+                        var baseDatabase = Database.loadDb(formStructure.model);
+                        var schema = {
+                            "relation": getCache().schema.relations
+                        };
+
+
+                        getCache().schema.settings                 = getCache().schema.settings || {};
+                        getCache().schema.settings.form            = getCache().schema.settings.form || {};
+                        getCache().schema.settings.form.beforeSave = getCache().schema.settings.form.beforeSave || [];
+                        var promiseList = [];
+                        getCache().schema.settings.form.beforeSave.forEach(function (func) {
+                            if(typeof func === "function"){
+                                promiseList.push(func(formModel));
+                            }else if(typeof func === "object"){
+                                promiseList.push($q(function (resolve, reject) {
+                                    LoginServices.addUserDetail.get()
+                                        .then(function (user) {
+                                            for(var key in func){
+                                                if(func.hasOwnProperty(key)){
+                                                    var value = func[key];
+                                                    var pattern = /\$user\..+/;
+                                                    if(pattern.test(value)){
+                                                        var keyValue = value.replace(/\$user\./, "");
+                                                        if(user[keyValue]){
+                                                            formModel[key] = user[keyValue];
+                                                        }
+                                                    }else{
+                                                        formModel[key] = value;
+                                                    }
+                                                }
+                                            }
+                                            resolve();
+                                        })
+                                        .catch(function (error) {
+                                            reject(error);
+                                        });
+                                }));
+
+                            }else{
+                                //Dont do anything..
+                            }
+                        });
+
+                        $q.all(promiseList)
+                            .then(function () {
+                                return saveModelFinally(formModel, schema, baseDatabase, formData, goBack, modelInstance);
+                            })
+                            .then(function (data) {
+                                resolve(data);
+                            })
+                            .catch(function (error) {
+                                console.error(error);
+                                reject("Error data is Invalid.");
+                            });
+
+
+                    }
+                });
+            }; //saveForm
+
+
+
+            /**
+             * Save Model Finally..
+             * @param formModel
+             * @param schema
+             * @param baseDatabase
+             * @param formData
+             * @param goBack
+             * @param modelInstance
+             */
+            var saveModelFinally = function (formModel, schema, baseDatabase, formData, goBack, modelInstance) {
+                return $q(function (resolve, reject) {
                     var requestData = {
                         data: formModel,
                         schema: schema
@@ -695,7 +765,7 @@ angular.module($snaphy.getModuleName())
                     } else {
                         positionNewData = getCache().displayed.length;
                         //First add to the table..
-                        getCache().displayed.push(savedData);
+                        //getCache().displayed.push(savedData);
                         update = false;
                     }
 
@@ -704,7 +774,7 @@ angular.module($snaphy.getModuleName())
                     baseDatabase.save({}, requestData, function(baseModel) {
                         if (!update) {
                             //Now update the form with id.
-                            getCache().displayed[positionNewData].id = baseModel.data.id;
+                            getCache().displayed.push(baseModel.data);
                         }
                         SnaphyTemplate.notify({
                             message: "Data successfully saved.",
@@ -712,6 +782,11 @@ angular.module($snaphy.getModuleName())
                             icon: 'fa fa-check',
                             align: 'left'
                         });
+
+                        closeModel(goBack, modelInstance);
+                        //Now reset the form..
+                        resetSavedForm(formData);
+                        resolve(baseModel);
                     }, function(respHeader) {
                         //console.log("Error saving data to server");
                         //console.error(respHeader);
@@ -735,6 +810,10 @@ angular.module($snaphy.getModuleName())
                             }
                         }
 
+                        //Now reset the form..
+                        //resetSavedForm(formData);
+                        //closeModel(goBack, modelInstance);
+
                         //console.error(respHeader);
                         SnaphyTemplate.notify({
                             message: message,
@@ -742,14 +821,13 @@ angular.module($snaphy.getModuleName())
                             icon: 'fa fa-times',
                             align: 'left'
                         });
+                        reject(message);
                     });
+                });
+            }; //saveModelFinally done..
 
-                    //Now reset the form..
-                    resetSavedForm(formData);
-                    closeModel(goBack, modelInstance);
 
-                }
-            }; //saveForm
+
 
             //Goback or close the model..
             var closeModel = function(goBack, modelInstance) {
@@ -757,6 +835,9 @@ angular.module($snaphy.getModuleName())
                 ImageUploadingTracker.resetTracker();
                 if (goBack) {
                     if (modelInstance) {
+                        if(!/^#.+/.test(modelInstance)){
+                            modelInstance = "#" + modelInstance;
+                        }
                         //close the model..
                         $(modelInstance).modal('hide');
                     }
