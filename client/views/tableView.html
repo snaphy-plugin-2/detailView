@@ -54,17 +54,18 @@
             <h3 ng-if="tableInstance.getCache().label" class="block-title">{{ tableInstance.getCache().label | camelCaseToSpaces}} Data</h3>
         </div>
         <div st-pipe="tableInstance.refreshData" ng-init="tableId = tableInstance.getCache().relationName + 'Table'"  st-table="tableInstance.getCache().displayed" class="block-content">
-            <div  class="table-responsive" style="overflow-x: hidden;">
-                <table ng-attr-id="{{ tableId}}"  class="table table-bordered  table-striped js-dataTable-full">
+            <div  class="table-responsive">
+                <table ng-attr-id="{{ tableId}}"  class="table table-bordered table-vcenter table-striped js-dataTable-full">
                     <thead>
                         <tr style="cursor: pointer;">
-                            <th style="word-wrap:break-word;"
+                            <th style="word-wrap:break-word;width:100px;padding: 5px 10px 5px;"
                                 ng-if = "tableInstance.displayProperties(tableInstance.getCache().schema, header)"
                                 ng-repeat="header in tableInstance.getCache().schema.header"
+                                ng-style="tableInstance.getHeaderStyle(tableInstance.getCache().schema, header)"
                                 st-sort="{{ header}}">
                                 {{ tableInstance.getHeaderTitle(tableInstance.getCache().schema, header)  | removeDot | underscoreless}}
                             </th>
-                            <th ng-hide="relationDetail.action.edit === false && relationDetail.action.delete === false " class="text-center" style="width: 10%;word-wrap:break-word;">Actions</th>
+                            <th ng-hide="relationDetail.action.edit === false && relationDetail.action.delete === false " class="text-center" style="width:100px;word-wrap:break-word;">Actions</th>
                         </tr>
 
                         <tr>
@@ -150,9 +151,9 @@
                                 />
                             </th>
                             <!--<button ng-click="resetAll()" class="btn btn-minw btn-default pull-right" type="button">Reset</button>-->
-                            <th ng-hide="relationDetail.action.edit === false && relationDetail.action.delete === false " class="text-center" style="width: 10%;word-wrap:break-word;">
+                            <th ng-hide="relationDetail.action.edit === false && relationDetail.action.delete === false " class="text-center" style="width:100px;word-wrap:break-word;">
                                 <!-- Clear ui variables.. -->
-                                <button ng-click="tableInstance.resetAll()" class="btn btn-minw btn-default pull-right" type="button">Clear</button>
+                                <button ng-click="tableInstance.resetAll()" class="btn btn-default pull-right" type="button">Clear</button>
                             </th>
                         </tr>
                     </thead>

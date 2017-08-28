@@ -205,6 +205,10 @@ angular.module($snaphy.getModuleName())
             };
 
 
+
+
+
+
             /**
              * Prepare where query for model. To be used in searching of  models. Used in method addWhereQuery.
              * @param  {Object}          where      Where type object for for filtering the database. example {customerId: "324edfcs"}
@@ -282,6 +286,28 @@ angular.module($snaphy.getModuleName())
 
                 return null;
             };
+
+
+
+            /**
+             * Fetch the header style.
+             * @param schema
+             * @param header
+             * @return {{}} Title of header.
+             */
+            var getHeaderStyle = function(schema, header){
+                //First convert the header to optimal type..
+                var new_header = header.replace(/\./, "_");
+                if (schema.tables) {
+                    if (schema.tables[new_header]) {
+                        if (schema.tables[new_header].style) {
+                            return schema.tables[new_header].style;
+                        }
+                    }
+                }
+                return {};
+            };
+
 
 
             var addWhereQuery = function(model, columnName, filterType, schema){
@@ -867,7 +893,8 @@ angular.module($snaphy.getModuleName())
                 getRelatedDataTagInfo: getRelatedDataTagInfo,
                 prepareDataForEdit: prepareDataForEdit,
                 deleteData: deleteData,
-                saveForm: saveForm
+                saveForm: saveForm,
+                getHeaderStyle: getHeaderStyle
             }; //inner function
         }; //Outer function
 
