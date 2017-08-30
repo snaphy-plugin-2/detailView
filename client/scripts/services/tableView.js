@@ -309,6 +309,26 @@ angular.module($snaphy.getModuleName())
             };
 
 
+            /**
+             * Fetch the header class.
+             * @param schema
+             * @param header
+             * @return {{}} Title of header.
+             */
+            var getHeaderClass = function(schema, header){
+                //First convert the header to optimal type..
+                var new_header = header.replace(/\./, "_");
+                if (schema.tables) {
+                    if (schema.tables[new_header]) {
+                        if (schema.tables[new_header].class) {
+                            return schema.tables[new_header].class;
+                        }
+                    }
+                }
+                return [];
+            };
+
+
 
             var addWhereQuery = function(model, columnName, filterType, schema){
                 getCache().settings.resetPage = true;
@@ -894,7 +914,8 @@ angular.module($snaphy.getModuleName())
                 prepareDataForEdit: prepareDataForEdit,
                 deleteData: deleteData,
                 saveForm: saveForm,
-                getHeaderStyle: getHeaderStyle
+                getHeaderStyle: getHeaderStyle,
+                getHeaderClass: getHeaderClass
             }; //inner function
         }; //Outer function
 

@@ -62,6 +62,7 @@
                                 ng-if = "tableInstance.displayProperties(tableInstance.getCache().schema, header)"
                                 ng-repeat="header in tableInstance.getCache().schema.header"
                                 ng-style="tableInstance.getHeaderStyle(tableInstance.getCache().schema, header)"
+                                ng-class="tableInstance.getHeaderClass(tableInstance.getCache().schema, header)"
                                 st-sort="{{ header}}">
                                 {{ tableInstance.getHeaderTitle(tableInstance.getCache().schema, header)  | removeDot | underscoreless}}
                             </th>
