@@ -185,82 +185,81 @@ angular.module($snaphy.getModuleName())
          * @param formModel  Data going to save to server.
          */
         var saveForm = function(formSchema, formData, formModel) {
-            var deferred = $q.defer();
-            if(ImageUploadingTracker.isUploadInProgress()){
-                SnaphyTemplate.notify({
-                    message: "Wait!! Image uploading is in progress. Please wait till the image is uploaded.",
-                    type: 'danger',
-                    icon: 'fa fa-times',
-                    align: 'left'
-                });
-                deferred.reject("Wait!! image uploading in progress.");
-            }
-            if (!isValid(formData)) {
-                SnaphyTemplate.notify({
-                    message: "Error data is Invalid.",
-                    type: 'danger',
-                    icon: 'fa fa-times',
-                    align: 'left'
-                });
-                deferred.reject("Error data is invalid.");
-            }
-            else
-            {
-                //Now save the model..
-                var baseDatabase = Database.loadDb(formSchema.model);
-                var schema = {
-                    "relation": formSchema.relations
-                };
-
-                formModel = formModel || {};
-
-                var requestData = {
-                    data: formModel, //here toJSON remove unwanted property like $promise from object.
-                    schema: schema
-                };
-
-                //Start Loading bar..
-                startLoadingbar(detailViewId);
-
-                //Now save||update the database with baseDatabase method.
-                baseDatabase.save({}, requestData, function(baseModel) {
+            return $q(function (resolve, reject) {
+                if(ImageUploadingTracker.isUploadInProgress()){
                     SnaphyTemplate.notify({
-                        message: "Data successfully saved.",
-                        type: 'success',
-                        icon: 'fa fa-check',
-                        align: 'left'
-                    });
-
-                    deferred.resolve(baseModel);
-                    //Stop Loading bar..
-                    stopLoadingbar(detailViewId);
-
-                }, function(respHeader) {
-                    var message = "Error saving data.";
-                    if(respHeader){
-                        if(respHeader.data){
-                            if(respHeader.data.error){
-                                if(respHeader.data.error.message){
-                                    message = respHeader.data.error.message;
-                                }
-                            }
-                        }
-                    }
-
-                    //console.error(respHeader);
-                    SnaphyTemplate.notify({
-                        message: message,
+                        message: "Wait!! Image uploading is in progress. Please wait till the image is uploaded.",
                         type: 'danger',
                         icon: 'fa fa-times',
                         align: 'left'
                     });
+                    reject("Wait!! image uploading in progress.");
+                }
+                if (!isValid(formData)) {
+                    SnaphyTemplate.notify({
+                        message: "Error data is Invalid.",
+                        type: 'danger',
+                        icon: 'fa fa-times',
+                        align: 'left'
+                    });
+                    reject("Error data is invalid.");
+                }
+                else {
+                    //Now save the model..
+                    var baseDatabase = Database.loadDb(formSchema.model);
+                    var schema = {
+                        "relation": formSchema.relations
+                    };
 
-                    deferred.reject(respHeader);
-                    //Stop Loading bar..
-                    stopLoadingbar(detailViewId);
-                });
-            }
-            return deferred.promise;
+                    formModel = formModel || {};
+
+                    var requestData = {
+                        data: formModel, //here toJSON remove unwanted property like $promise from object.
+                        schema: schema
+                    };
+
+                    //Start Loading bar..
+                    startLoadingbar(detailViewId);
+
+                    //Now save||update the database with baseDatabase method.
+                    baseDatabase.save({}, requestData, function (baseModel) {
+                        SnaphyTemplate.notify({
+                            message: "Data successfully saved.",
+                            type: 'success',
+                            icon: 'fa fa-check',
+                            align: 'left'
+                        });
+
+                        resolve(baseModel);
+                        //Stop Loading bar..
+                        stopLoadingbar(detailViewId);
+
+                    }, function (respHeader) {
+                        var message = "Error saving data.";
+                        if (respHeader) {
+                            if (respHeader.data) {
+                                if (respHeader.data.error) {
+                                    if (respHeader.data.error.message) {
+                                        message = respHeader.data.error.message;
+                                    }
+                                }
+                            }
+                        }
+
+                        //console.error(respHeader);
+                        SnaphyTemplate.notify({
+                            message: message,
+                            type: 'danger',
+                            icon: 'fa fa-times',
+                            align: 'left'
+                        });
+
+                        reject(respHeader);
+                        //Stop Loading bar..
+                        stopLoadingbar(detailViewId);
+                    });
+                }
+            });
         }; //saveForm
 
 
