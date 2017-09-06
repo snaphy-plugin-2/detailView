@@ -272,7 +272,7 @@
                         <td  ng-hide="relationDetail.action.edit === false && relationDetail.action.delete === false " class="text-center">
 
                             <div class="btn-group">
-                                <span ng-repeat="actionSetting in tableInstance.getCache().schema.settings.tables.action">
+                                <span style="float: left;" ng-repeat="actionSetting in tableInstance.getCache().schema.settings.tables.action">
                                     <button
                                             ng-if="actionSetting.onClick.type === 'dialog'"
                                             class="btn btn-xs btn-default"
@@ -345,8 +345,19 @@
         >
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
-                    <div  ui-view="">
+                    <div class="block block-themed block-transparent remove-margin-b">
+                        <div class="block-header bg-primary-dark">
+                            <ul class="block-options">
+                                <li>
+                                    <button  data-dismiss="modal" type="button"><i class="si si-close"></i></button>
+                                </li>
+                            </ul>
+                            <h3 class="block-title">{{actionSetting.title | camelCaseToSpaces}}</h3>
+                        </div>
+                        <div  ui-view="">
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div><!--MODAL-->

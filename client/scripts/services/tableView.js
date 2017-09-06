@@ -939,7 +939,6 @@ angular.module($snaphy.getModuleName())
 
                     $q.all(promiseList)
                         .then(function () {
-                            console.log("Loading to new state", newOptions);
                             $state.go(state, newOptions);
                         })
                         .catch(function (error) {
