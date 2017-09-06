@@ -898,10 +898,54 @@ angular.module($snaphy.getModuleName())
              * Load some state on dynamic action button click.
              * @param state
              * @param options
+             * @param formData {{}} Form data on which action is performed
              */
-            var onActionButtonClick = function (state, options) {
-                console.log("Page getting loaded", state);
-                $state.go(state, options);
+            var onActionButtonClick = function (state, options, formData) {
+                //First parse and sanitize the options data.
+                if($.isEmptyObject(options)){
+                    $state.go(state);
+                }else{
+                    var newOptions = {};
+                    var promiseList = [];
+                    for(var key_ in options){
+                        var value = options[key_];
+                        (function (key, value) {
+                            promiseList.push($q(function (resolve, reject) {
+                                var userPatt = /\$user\..+/;
+                                var dataPatt = /\$data\..+/;
+                                if(userPatt.test(value)){
+                                    var identifierKey = value.replace(/\$user\./, '');
+                                    LoginServices.addUserDetail.get()
+                                        .then(function (user) {
+                                            newOptions[key] = user[identifierKey];
+                                        })
+                                        .then(function () {
+                                            resolve();
+                                        })
+                                        .catch(function (error) {
+                                            reject(error);
+                                        })
+                                }else if(dataPatt.test(value)){
+                                    var identifierKey = value.replace(/\$data\./, '');
+                                    newOptions[key]   = formData[identifierKey];
+                                    resolve();
+                                }else{
+                                    newOptions[key] = value;
+                                    resolve();
+                                }
+                            })); //promise ends..
+                        })(key_, value);
+                    }
+
+                    $q.all(promiseList)
+                        .then(function () {
+                            console.log("Loading to new state", newOptions);
+                            $state.go(state, newOptions);
+                        })
+                        .catch(function (error) {
+                            console.error(error);
+                        });
+                }
             };
 
 
