@@ -351,6 +351,9 @@ angular.module($snaphy.getModuleName())
                     //Copy the services method to table View resources..object..
                     var returnObj = TableViewResource(getCache, refreshData, $scope);
 
+
+
+
                     returnObj.getCache = getCache;
                     returnObj.refreshData = refreshData;
                     returnObj.resetAll = resetAll;

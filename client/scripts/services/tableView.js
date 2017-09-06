@@ -5,8 +5,8 @@
 
 angular.module($snaphy.getModuleName())
     //Define your services here..
-    .factory('TableViewResource', ['Database', '$q', 'ImageUploadingTracker', 'SnaphyTemplate', "$timeout", "LoginServices",
-        function(Database, $q, ImageUploadingTracker, SnaphyTemplate, $timeout, LoginServices) {
+    .factory('TableViewResource', ['Database', '$q', 'ImageUploadingTracker', 'SnaphyTemplate', "$timeout", "LoginServices", "$state",
+        function(Database, $q, ImageUploadingTracker, SnaphyTemplate, $timeout, LoginServices, $state) {
 
         return function(getCache, refreshData, $scope){
             //Example addInlineFilterResetMethod('#automataTable', 'number', inlineSearch, header)
@@ -101,6 +101,10 @@ angular.module($snaphy.getModuleName())
                 }
                 fireHookBeforeSave(getCache().settings.saveFormData);
             };
+
+
+
+            
 
 
 
@@ -890,6 +894,16 @@ angular.module($snaphy.getModuleName())
                 }
             };
 
+            /**
+             * Load some state on dynamic action button click.
+             * @param state
+             * @param options
+             */
+            var onActionButtonClick = function (state, options) {
+                console.log("Page getting loaded", state);
+                $state.go(state, options);
+            };
+
 
             return {
                 resetSavedForm: resetSavedForm,
@@ -915,7 +929,8 @@ angular.module($snaphy.getModuleName())
                 deleteData: deleteData,
                 saveForm: saveForm,
                 getHeaderStyle: getHeaderStyle,
-                getHeaderClass: getHeaderClass
+                getHeaderClass: getHeaderClass,
+                onActionButtonClick: onActionButtonClick
             }; //inner function
         }; //Outer function
 

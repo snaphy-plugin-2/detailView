@@ -270,7 +270,28 @@
                         </td>
                         <!-- For adding table edit and delete options. -->
                         <td  ng-hide="relationDetail.action.edit === false && relationDetail.action.delete === false " class="text-center">
+
                             <div class="btn-group">
+                                <span ng-repeat="actionSetting in tableInstance.getCache().schema.settings.tables.action">
+                                    <button
+                                            ng-if="actionSetting.onClick.type === 'dialog'"
+                                            class="btn btn-xs btn-default"
+                                            type="button"
+                                            data-toggle="modal"
+                                            ng-click="tableInstance.onActionButtonClick(actionSetting.onClick.state, actionSetting.onClick.options)"
+                                            data-target="#{{actionSetting.onClick.dataTargetId}}"
+                                            title="{{actionSetting.title}}">
+                                            <i ng-class="actionSetting.onClick.icon"></i>
+                                    </button>
+                                    <button
+                                            ng-if="actionSetting.onClick.type === 'page'"
+                                            class="btn btn-xs btn-default"
+                                            type="button"
+                                            title="Edit Data">
+                                            <i class="fa fa-pencil"></i>
+                                    </button>
+                                </span>
+
                                 <button
                                         ng-hide="relationDetail.action.edit === false"
                                         class="btn btn-xs btn-default"
@@ -306,6 +327,31 @@
         </div>
     </div><!--div.block-->
     <!-- END Dynamic Table Full -->
+
+
+    <!--Dynamic Div For loading table button click on runtime..-->
+    <!--Will load dynamic dialog for button action.-->
+    <div ng-if="tableInstance.getCache().schema.settings.tables.action.length">
+        <!--EDIT DATA-->
+        <!-- Fade In Modal -->
+        <div  ng-repeat="actionSetting in tableInstance.getCache().schema.settings.tables.action"
+              ng-if="actionSetting.onClick.type === 'dialog'"
+              on-modal-close
+              ng-attr-id="{{actionSetting.onClick.dataTargetId}}"
+              class="modal fade"
+              tabindex="-1"
+              role="dialog"
+              aria-hidden="true"
+        >
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div  ui-view="">
+
+                    </div>
+                </div>
+            </div>
+        </div><!--MODAL-->
+    </div>
 
 
     <!--EDIT DATA-->
