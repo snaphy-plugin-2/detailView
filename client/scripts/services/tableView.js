@@ -895,6 +895,46 @@ angular.module($snaphy.getModuleName())
             };
 
             /**
+             * Check if dynamic action button disabled or not..
+             * @param actionSetting
+             * @param rowObject
+             * @return Boolean true if disabled or vice-versa
+             */
+            var checkActionButtonDisabled = function(actionSetting, rowObject){
+                if(actionSetting){
+                    if(actionSetting.disableWhen){
+                        if(actionSetting.disableWhen.key && actionSetting.disableWhen.value !== undefined){
+                            //"disableWhen": "$data.replyButton === 'disable'"
+                            /**
+                                  "disableWhen": {
+                                    "key": "$data.replyButton",
+                                    "value": "disable"
+                                  }
+                             */
+                            var dataPatt = /\$data\..+/;
+                            if(dataPatt.test(actionSetting.disableWhen.key)){
+                               var valueIdentifier = actionSetting.disableWhen.key.replace(/\$data\./, '');
+                               var actualValue = rowObject[valueIdentifier];
+                               if(actualValue){
+                                   if(actualValue.toString() === actionSetting.disableWhen.value.toString()){
+                                       return true;
+                                   }
+                               }
+                            }else{
+                                if(actionSetting.disableWhen.key.toString() === actionSetting.disableWhen.value.toString()){
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+                return false;
+            };
+
+
+
+
+            /**
              * Load some state on dynamic action button click.
              * @param state
              * @param options
@@ -973,7 +1013,8 @@ angular.module($snaphy.getModuleName())
                 saveForm: saveForm,
                 getHeaderStyle: getHeaderStyle,
                 getHeaderClass: getHeaderClass,
-                onActionButtonClick: onActionButtonClick
+                onActionButtonClick: onActionButtonClick,
+                checkActionButtonDisabled: checkActionButtonDisabled
             }; //inner function
         }; //Outer function
 

@@ -278,6 +278,7 @@
                                             class="btn btn-xs btn-default"
                                             type="button"
                                             data-toggle="modal"
+                                            ng-disabled="tableInstance.checkActionButtonDisabled(actionSetting, rowObject)"
                                             ng-click="tableInstance.onActionButtonClick(actionSetting.onClick.state, actionSetting.onClick.options, rowObject)"
                                             data-target="#{{actionSetting.onClick.dataTargetId}}"
                                             title="{{actionSetting.title}}">
@@ -291,8 +292,9 @@
                                             <i class="fa fa-pencil"></i>
                                     </button>
                                 </span>
-
                                 <button
+                                        ng-if="tableInstance.getCache().schema.settings.tables.edit.display !== false"
+                                        ng-disabled="tableInstance.checkActionButtonDisabled(tableInstance.getCache().schema.settings.tables.edit, rowObject)"
                                         ng-hide="relationDetail.action.edit === false"
                                         class="btn btn-xs btn-default"
                                         type="button"
