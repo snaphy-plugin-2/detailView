@@ -53,7 +53,9 @@
             <h3 ng-if="!tableInstance.getCache().label" class="block-title">{{ tableInstance.getCache().modelName | camelCaseToSpaces}} Data</h3>
             <h3 ng-if="tableInstance.getCache().label" class="block-title">{{ tableInstance.getCache().label | camelCaseToSpaces}} Data</h3>
         </div>
-        <div st-pipe="tableInstance.refreshData" ng-init="tableId = tableInstance.getCache().relationName + 'Table'"  st-table="tableInstance.getCache().displayed" class="block-content">
+        <div
+                style="padding: 0 !important;"
+                st-pipe="tableInstance.refreshData" ng-init="tableId = tableInstance.getCache().relationName + 'Table'"  st-table="tableInstance.getCache().displayed" class="block-content">
             <div  class="table-responsive">
                 <table ng-attr-id="{{ tableId}}"  class="table table-bordered table-vcenter table-striped js-dataTable-full">
                     <thead>
