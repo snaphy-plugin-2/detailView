@@ -53,30 +53,6 @@ angular.module($snaphy.getModuleName())
 
 
 
-            /**
-             * Return the params for ui-sref for onClick
-             * @param params
-             * @param rowObject
-             * @returns {*}
-             */
-            var getParams = function(params, rowObject) {
-                for (var key in params) {
-                    if (params.hasOwnProperty(key)) {
-                        if(rowObject[key]){
-                            var searchKey =  params[key];
-                            if(searchKey){
-                                if(rowObject[searchKey]){
-                                    params[key] = rowObject[searchKey];
-                                }
-                            }
-
-                        }
-                    }
-                }
-                return params;
-            };
-
-
 
 
             /**
@@ -453,6 +429,30 @@ angular.module($snaphy.getModuleName())
                 }
                 return keyName;
             };
+
+
+            /**
+             * Return the params for ui-sref for onClick
+             * @param params
+             * @param rowObject
+             * @returns {*}
+             */
+            var getParams = function(params, rowObject) {
+                var newParam = {};
+                for (var key in params) {
+                    if (params.hasOwnProperty(key)) {
+                        var searchKey =  params[key];
+                        newParam[key] = searchKey;
+                        if(searchKey){
+                            if(rowObject[searchKey]){
+                                newParam[key] = rowObject[searchKey];
+                            }
+                        }
+                    }
+                }
+                return newParam;
+            };
+
 
 
 
