@@ -997,6 +997,7 @@ angular.module($snaphy.getModuleName())
                 getHeaderTitle: getHeaderTitle,
                 showFilterType: showFilterType,
                 addWhereQuery: addWhereQuery,
+                addResetMethod: addResetMethod,
                 getOptions: getOptions,
                 checkType: checkType,
                 getColValue: getColValue,
