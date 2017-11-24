@@ -7,6 +7,7 @@
     "/detailView/scripts/controllers/detailView.js": "detailViewController",
     "/detailView/scripts/services/detailView.js": "detailViewServices",
     "/detailView/scripts/services/tableView.js": "tableViewServices",
+    "/detailView/scripts/services/initTableService.js": "initTableService",
     "/static/bower_components/jquery.maskedinput/dist/jquery.maskedinput.min.js": "Jquery.MaskedInput"
   },
   "moduleDependencies":{
