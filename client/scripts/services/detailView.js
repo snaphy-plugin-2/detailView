@@ -175,6 +175,16 @@ angular.module($snaphy.getModuleName())
         };
 
 
+        //Goback or close the model..
+        var closeModel = function(modelInstance) {
+            if (modelInstance) {
+                //close the model..
+                $("#"+modelInstance).modal('hide');
+            }
+        };
+
+
+
 
 
 
@@ -184,7 +194,7 @@ angular.module($snaphy.getModuleName())
          * @param formData form validation and other data related to form.
          * @param formModel  Data going to save to server.
          */
-        var saveForm = function(formSchema, formData, formModel) {
+        var saveForm = function(formSchema, formData, formModel, dialogIdName) {
             return $q(function (resolve, reject) {
                 if(ImageUploadingTracker.isUploadInProgress()){
                     SnaphyTemplate.notify({
@@ -229,7 +239,7 @@ angular.module($snaphy.getModuleName())
                             icon: 'fa fa-check',
                             align: 'left'
                         });
-
+                        closeModel(dialogIdName);
                         resolve(baseModel);
                         //Stop Loading bar..
                         stopLoadingbar(detailViewId);

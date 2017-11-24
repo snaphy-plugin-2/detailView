@@ -170,7 +170,7 @@ angular.module($snaphy.getModuleName())
          * @param formData
          * @param formModel
          */
-        $scope.saveForm = function(formSchema, formData, formModel){
+        $scope.saveForm = function(formSchema, formData, formModel, goBack, dialogIdName){
             var promise = DetailViewResource.saveForm(formSchema, formData, formModel);
             //Disable button..
             $scope.disableDetailViewButton = true;
@@ -190,6 +190,15 @@ angular.module($snaphy.getModuleName())
                 $scope.disableDetailViewButton = false;
                 console.error(error);
             });
+        };
+
+
+        //Goback or close the model..
+        var closeModel = function(modelInstance) {
+            if (modelInstance) {
+                //close the model..
+                $("#"+modelInstance).modal('hide');
+            }
         };
 
         //TableViewInit
