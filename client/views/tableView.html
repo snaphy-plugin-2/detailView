@@ -2,7 +2,7 @@
     <!-- Dynamic Table Full -->
     <div ng-cloak class="block " ng-class="{'block-opt-refresh': tableInstance.getCache().settings.isLoading}" >
         <div  ng-hide="relationDetail.action.showHeader === false" class="block-header">
-            <ul ng-if="!tableInstance.getCache().label" class="block-options">
+            <ul ng-if="!tableInstance.getCache().label" class="block-options form-group">
                 <button
                         ng-if="tableInstance.getCache().schema.settings.create !== false && tableInstance.getCache().schema.settings.form.preventDefault"
                         ng-hide="relationDetail.action.create === false"
