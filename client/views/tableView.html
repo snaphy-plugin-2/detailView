@@ -384,7 +384,7 @@
                         <h3 ng-if="tableInstance.getCache().label" class="block-title">{{tableInstance.getCache().label | camelCaseToSpaces}} Data</h3>
                     </div>
                     <div ng-if="tableInstance.getCache().schema.validations" class="block-content block-content-narrow">
-                        <form name="tableInstance.getCache().settings.form" ng-validate="tableInstance.getCache().schema.validations" novalidate  class="form-horizontal">
+                        <form name="tableInstance.getCache().settings.form" ng-validate="tableInstance.getCache().schema.validations" novalidate  class="form-horizontal clearfix">
                             <!--Add container class and style related to this..-->
                             <div ng-class="container.class" ng-style="container.style" ng-repeat="container in tableInstance.getCache().schema.container">
                                 <formly-form   model="tableInstance.getCache().settings.saveFormData" fields="container.schema" ></formly-form>
