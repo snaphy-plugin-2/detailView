@@ -313,64 +313,66 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 			for(let relationName in relationObj){
 				if(relationObj.hasOwnProperty(relationName)){
 					var relationData = relationObj[relationName];
+					if(relationData.display !== false){
+						if(relationData.type === "hasOne"){
+							let obj = {
+								relationName: relationName,
+								modelName: relationData.model,
+								searchId: _.lowerFirst(modelName) + "Id"
+							};
+							schema.relations.hasOne.push(obj);
 
-					if(relationData.type === "hasOne"){
-						let obj = {
-							relationName: relationName,
-							modelName: relationData.model,
-							searchId: _.lowerFirst(modelName) + "Id"
-						};
-						schema.relations.hasOne.push(obj);
+						} else if(relationData.type === "belongsTo"){
+							let obj = {
+								relationName: relationName,
+								modelName: relationData.model,
+								searchId: _.lowerFirst(modelName) + "Id"
+							};
+							schema.relations.belongsTo.push(obj);
+						} else if(relationData.type === "hasMany"){
+							if(relationData.through){
+								let relationModelName = relationData.through;
+								let relationModelObj = app.models[relationModelName];
+								let relationsObjArray = relationModelObj.definition.settings.relations;
+								let searchedRelationData = findRelationByModelName(modelName, relationsObjArray);
 
-					} else if(relationData.type === "belongsTo"){
-						let obj = {
-							relationName: relationName,
-							modelName: relationData.model,
-							searchId: _.lowerFirst(modelName) + "Id"
-						};
-						schema.relations.belongsTo.push(obj);
-					} else if(relationData.type === "hasMany"){
-						if(relationData.through){
-							let relationModelName = relationData.through;
-							let relationModelObj = app.models[relationModelName];
-							let relationsObjArray = relationModelObj.definition.settings.relations;
-							let searchedRelationData = findRelationByModelName(modelName, relationsObjArray);
-
-							if(searchedRelationData){
-								let obj = {
-									relationName: relationName,
-									modelName: relationData.model,
-                                    relationKey: searchedRelationData.relationName,
-									searchId: getSearchId(searchedRelationData),
-									through: relationModelName
-								};
-								schema.relations.hasManyThrough.push(obj);
+								if(searchedRelationData){
+									let obj = {
+										relationName: relationName,
+										modelName: relationData.model,
+										relationKey: searchedRelationData.relationName,
+										searchId: getSearchId(searchedRelationData),
+										through: relationModelName
+									};
+									schema.relations.hasManyThrough.push(obj);
+								}
+							}else{
+								//normal hasMany case..
+								let relationModelName = relationData.model;
+								let relationModelObj = app.models[relationModelName];
+								let relationsObjArray = relationModelObj.definition.settings.relations;
+								let searchedRelationData = findRelationByModelName(modelName, relationsObjArray);
+								if(searchedRelationData){
+									let obj = {
+										relationName: relationName,
+										modelName: relationData.model,
+										relationKey: searchedRelationData.relationName,
+										searchId: getSearchId(searchedRelationData)
+									};
+									schema.relations.hasMany.push(obj);
+								}
 							}
-						}else{
-							//normal hasMany case..
-							let relationModelName = relationData.model;
-							let relationModelObj = app.models[relationModelName];
-							let relationsObjArray = relationModelObj.definition.settings.relations;
-							let searchedRelationData = findRelationByModelName(modelName, relationsObjArray);
-							if(searchedRelationData){
-								let obj = {
-									relationName: relationName,
-									modelName: relationData.model,
-									relationKey: searchedRelationData.relationName,
-									searchId: getSearchId(searchedRelationData)
-								};
-								schema.relations.hasMany.push(obj);
-							}
+						} else if(relationData.type === "hasAndBelongsToMany"){
+							let obj = {
+								relationName: relationName,
+								modelName: relationData.model,
+								searchId: _.lowerFirst(modelName) + "Id"
+							};
+							schema.relations.hasAndBelongsToMany.push(obj);
+
 						}
-					} else if(relationData.type === "hasAndBelongsToMany"){
-						let obj = {
-							relationName: relationName,
-							modelName: relationData.model,
-							searchId: _.lowerFirst(modelName) + "Id"
-						};
-						schema.relations.hasAndBelongsToMany.push(obj);
-
 					}
+					
 				}
 			}
 		}
