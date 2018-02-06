@@ -222,8 +222,21 @@
                                 <span ng-init="colType = tableInstance.getRelationColumnType (rowObject, header, colKey, colType);
                                       colValue = tableInstance.getRelationColumnValue(rowObject, header, colKey);"
                                       ng-if="colType === '[object Object]'">
+
+                                    <div style="text-align:center" ng-if="tableConfig.image">
+                                        <div snaphy-image-zoomr class="js-gallery">
+                                            <div class="remove-margin">
+                                                <a class="img-link no-transition" ng-href="{{tableInstance.loadLargeImage(colValue)}}">
+                                                    <img class="img-avatar img-avatar48 no-transition" ng-src="{{tableInstance.loadImage(colValue)}}" alt="">
+                                                </a>
+                                            
+                                            </div>
+                                        </div>
+                                    </div>
+
+
                                     <!--Do string populated work here...-->
-                                    <ul ng-if="colType === '[object Object]'">
+                                    <ul ng-if="colType === '[object Object]' && !tableConfig.image">
                                         <li style="margin-top: 10px;" ng-init="objColType = tableInstance.checkType(colValue, key);" ng-repeat="(key, value) in colValue">
                                             <span  ng-if="tableInstance.checkType(colValue, key) === '[object Object]'">
                                                 <ul>
@@ -237,7 +250,8 @@
                                             </span>
                                         </li>
                                     </ul>
-                                    <span ng-if="colType !== '[object Object]'">
+
+                                    <span ng-if="colType !== '[object Object]' && !tableConfig.image">
                                         <span ng-if="tableConfig.type === 'date'">
                                             <span
                                                     data-order="{{ tableInstance.dateInSeconds(rowObject, header, colKey)}}"

@@ -186,6 +186,40 @@ angular.module($snaphy.getModuleName())
 
 
 
+            /**
+             * Will load image to the system
+             * @param {*} rowObject 
+             */
+            var loadImage = function(rowObject){
+                var url = "#";
+                if(rowObject){
+                    var imageObj = rowObject["url"];
+                    if(imageObj){
+                        if(imageObj.unSignedUrl){
+                            url = imageObj.unSignedUrl;
+                        }
+                    }
+                }
+                return url;
+            };
+
+            /**
+             * Will load image to the system
+             * @param {*} rowObject 
+             */
+            var loadLargeImage = function(rowObject){
+                var url = "#";
+                if(rowObject){
+                    var imageObj = rowObject["url"];
+                    if(imageObj){
+                        if(imageObj.unSignedUrl){
+                            url = imageObj.unSignedUrl;
+                        }
+                    }
+                }
+                return url;
+            };
+
 
 
 
@@ -1015,7 +1049,9 @@ angular.module($snaphy.getModuleName())
                 getHeaderStyle: getHeaderStyle,
                 getHeaderClass: getHeaderClass,
                 onActionButtonClick: onActionButtonClick,
-                checkActionButtonDisabled: checkActionButtonDisabled
+                checkActionButtonDisabled: checkActionButtonDisabled,
+                loadLargeImage: loadLargeImage,
+                loadImage: loadImage
             }; //inner function
         }; //Outer function
 

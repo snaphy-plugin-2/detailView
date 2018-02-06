@@ -82,7 +82,6 @@ angular.module($snaphy.getModuleName())
                                             if(cache[relationName].schema.settings){
                                                 if(cache[relationName].schema.settings.tables){
                                                     if(cache[relationName].schema.settings.tables.beforeLoad){
-                                                        
                                                             LoginServices.addUserDetail.get()
                                                             .then(function (user) {
                                                                 for(var key in cache[relationName].schema.settings.tables.beforeLoad){
@@ -136,6 +135,15 @@ angular.module($snaphy.getModuleName())
                             }
                         ];
 
+
+                        if(relationDetail.beforeSaveHook){
+                            if(relationDetail.beforeSaveHook.length){
+                                relationDetail.beforeSaveHook.forEach(function(hookFn){
+                                    cache[relationName].beforeSaveHook.push(hookFn);
+                                });
+                            }
+                        }
+
                         //This object all the settings related to current dataContainer of table view.
                         cache[relationName].settings = {
                             filterReset : false,
@@ -156,7 +164,7 @@ angular.module($snaphy.getModuleName())
                             inlineSearch:{},
                             form: {}
                         };
-                    };
+                    }; //End of resetData fn.
 
                     //Start memoization..
                     if(!cache[relationName]){
