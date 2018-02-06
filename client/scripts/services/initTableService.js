@@ -52,47 +52,81 @@ angular.module($snaphy.getModuleName())
                                     cache[relationName].where[relationDetail.searchId] = modelId;
                                 }
 
-                                if(!jQuery.isEmptyObject(cache[relationName].schema)){
-                                    if(cache[relationName].schema.settings){
-                                        if(cache[relationName].schema.settings.tables){
-                                            if(cache[relationName].schema.settings.tables.beforeLoad){
-                                                LoginServices.addUserDetail.get()
-                                                    .then(function (user) {
-                                                        for(var key in cache[relationName].schema.settings.tables.beforeLoad){
-                                                            if(cache[relationName].schema.settings.tables.beforeLoad.hasOwnProperty(key)){
-                                                                var value = cache[relationName].schema.settings.tables.beforeLoad[key];
-                                                                var patt = /\$user\..+/;
-                                                                if(patt.test(value)){
-                                                                    var valueKey = value.replace(/\$user\./, "");
-                                                                    cache[relationName].where[key] = user[valueKey];
-                                                                }else{
-                                                                    cache[relationName].where[key] = value;
+                                $q(function(resolve, reject){
+                                    //Where must be a promise method..
+                                    if(relationDetail.where){
+                                        relationDetail.where()
+                                        .then(function(whereObj){
+                                            if(whereObj){
+                                                for(var key in whereObj){
+                                                    if(whereObj.hasOwnProperty(key)){
+                                                        var value = whereObj[key];
+                                                        cache[relationName].where[key] = value;
+                                                    }
+                                                }
+                                            }
+                                        })
+                                        .then(function(){
+                                            resolve(cache[relationName].where);
+                                        })
+                                        .catch(function(error){
+                                            reject(error); 
+                                        });
+                                    }else{
+                                        resolve(cache[relationName].where);
+                                    }
+                                })
+                                .then(function(){
+                                    return $q(function(resolve, reject){
+                                        if(!jQuery.isEmptyObject(cache[relationName].schema)){
+                                            if(cache[relationName].schema.settings){
+                                                if(cache[relationName].schema.settings.tables){
+                                                    if(cache[relationName].schema.settings.tables.beforeLoad){
+                                                        
+                                                            LoginServices.addUserDetail.get()
+                                                            .then(function (user) {
+                                                                for(var key in cache[relationName].schema.settings.tables.beforeLoad){
+                                                                    if(cache[relationName].schema.settings.tables.beforeLoad.hasOwnProperty(key)){
+                                                                        var value = cache[relationName].schema.settings.tables.beforeLoad[key];
+                                                                        var patt = /\$user\..+/;
+                                                                        if(patt.test(value)){
+                                                                            var valueKey = value.replace(/\$user\./, "");
+                                                                            cache[relationName].where[key] = user[valueKey];
+                                                                        }else{
+                                                                            cache[relationName].where[key] = value;
+                                                                        }
+                                                                    }
                                                                 }
-                                                            }
-                                                        }
-                                                    })
-                                                    .then(function () {
+                                                            })
+                                                            .then(function () {
+                                                                resolve(cache[relationName].where);
+                                                            })
+                                                            .catch(function (error) {
+                                                                reject(error);
+                                                            });
+                                                    
+                                                    }else{
                                                         resolve(cache[relationName].where);
-                                                    })
-                                                    .catch(function (error) {
-                                                        reject(error);
-                                                    });
+                                                    }
+                                                }else{
+                                                    resolve(cache[relationName].where);
+                                                }
                                             }else{
                                                 resolve(cache[relationName].where);
                                             }
                                         }else{
                                             resolve(cache[relationName].where);
                                         }
-                                    }else{
-                                        resolve(cache[relationName].where);
-                                    }
-                                }else{
+                                    }); //$q function ends..
+                                })
+                                .then(function(){
                                     resolve(cache[relationName].where);
-                                }
+                                })
+                                .catch(function(error){
+                                    reject(error);
+                                });
                             });
-
                         };
-
 
                         //Add before save hook..
                         cache[relationName].beforeSaveHook = [
