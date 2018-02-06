@@ -7,9 +7,7 @@ angular.module($snaphy.getModuleName())
     .factory('DetailViewResource', ['Database', '$q', 'ImageUploadingTracker', 'SnaphyTemplate', function(Database, $q, ImageUploadingTracker, SnaphyTemplate) {
         //-------------------------------GLOBAL VARIABLE-------------------------------------------------
         var detailViewId = $snaphy.loadSettings('detailView', "detailViewId");
-
-        //-------------------------------------------------------------------------------------------
-
+        //------------------------------------------------------------------------------------------
         //Copying one object to another..
         var extend = function(original, context, key) {
             for (key in context) {
