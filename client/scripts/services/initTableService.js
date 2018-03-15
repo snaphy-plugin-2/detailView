@@ -29,15 +29,18 @@ angular.module($snaphy.getModuleName())
                      * @param schema optional if provided the adds schema object..
                      */
                     var resetData = function(schema){
-                        DetailViewResource.extend(cache[relationName], relationDetail);
+                        cache[relationName] = {};
+                        angular.copy(relationDetail, cache[relationName]);
                         //Also add the relation type..
                         cache[relationName].relationType = relationType;
                         if(schema){
                             //Absolute schema that is fetched from server..
                             cache[relationName].schema = schema;
                         }else{
-                            //Absolute schema that is fetched from server..
-                            cache[relationName].schema = {};
+                            if(!cache[relationName].schema){
+                                //Absolute schema that is fetched from server..
+                                cache[relationName].schema = {};
+                            }
                         }
 
                         //Data to be displayed in the table..

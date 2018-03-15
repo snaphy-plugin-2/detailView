@@ -28,5 +28,10 @@ angular.module($snaphy.getModuleName())
           url: '/detailView/:model/:id',
           templateUrl: '/detailView/views/detailView.html',
           controller: 'detailViewControl'
-        });
+        })
+          .state('modelDetails', {
+          url: '/detailView/:model/:id',
+          templateUrl: '/detailView/views/modelView.html',
+          controller: 'modelViewControl'
+      });
     }]); //config
