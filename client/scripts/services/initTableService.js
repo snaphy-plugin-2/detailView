@@ -31,6 +31,9 @@ angular.module($snaphy.getModuleName())
                     var resetData = function(schema){
                         cache[relationName] = {};
                         angular.copy(relationDetail, cache[relationName]);
+                        //These are those data that are not to be deleted on each data reset request..
+                        cache[relationName].persistentData = {};
+                        cache[relationName].resetFilterList = [];
                         //Also add the relation type..
                         cache[relationName].relationType = relationType;
                         if(schema){
