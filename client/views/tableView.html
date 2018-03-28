@@ -111,7 +111,15 @@
                                         type="number"
                                         ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'number', tableInstance.getCache().settings.inlineSearch, header)"
                                 />
-
+                                 <!-- handling for MultiSearch in Case of ArrayOfObject Search case.. -->
+                                 <input
+                                    ng-model="tableInstance.getCache().settings.inlineSearch[header]"
+                                    ng-change="tableInstance.addWhereQuery(tableInstance.getCache().settings.inlineSearch[header], header, 'arrayOfObject', tableInstance.getCache().schema)"
+                                    class="form-control"
+                                    ng-if="tableInstance.showFilterType(header, tableInstance.getCache().schema) === 'arrayOfObject'"
+                                    type="text"
+                                    ng-init="tableInstance.addInlineFilterResetMethod('#'+tableId, 'arrayOfObject', tableInstance.getCache().settings.inlineSearch, header)"
+                                />
 
                                 <!--HANDLING FOR SPECIAL RELATED CASE MODEL SEARCH..-->
                                 <input
@@ -175,9 +183,16 @@
 
                                 <span data-sort="{{ tableInstance.getColValue(rowObject, header)}}"  data-filter="{{ tableInstance.getColValue(rowObject, header)}}" ng-if="colType === '[object String]' || colType === '[object Boolean]' || colType === '[object Number]'">
                                     <span ng-if="tableConfig.onClick !== undefined">
-                                        <!--Display link here..-->
-                                        <a ui-sref="{{ tableConfig.onClick.state}}({{ tableInstance.getParams(tableConfig.onClick.params, rowObject)}})">{{ tableInstance.getColValue(rowObject, header)}}</a>
+                                        <span ng-if="tableConfig.onClick.type === 'external'">
+                                            <!--Display link here..-->
+                                            <a href="{{tableConfig.onClick.url}}{{tableInstance.getExternalParam(tableConfig.onClick.params, rowObject)}}">{{ tableInstance.getColValue(rowObject, header)}}</a>
+                                        </span>
+                                        <span ng-if="tableConfig.onClick.type !== 'external'">
+                                            <!--Display link here..-->
+                                            <a ui-sref="{{ tableConfig.onClick.state}}({{ tableInstance.getParams(tableConfig.onClick.params, rowObject)}})">{{ tableInstance.getColValue(rowObject, header)}}</a>
+                                        </span>  
                                     </span>
+    
 
                                     <span ng-if="tableConfig.date">
                                         <!--Display link here..-->
@@ -199,9 +214,19 @@
                                 </span>
 
                                 <span ng-if="colType === '[object Array]'">
+                                    <span ng-if="tableConfig.search === 'arrayOfObject'">
+                                        <span ng-repeat="arrayData in tableInstance.getColValue(rowObject, header)">
+                                            <span ng-if="tableInstance.checkType(tableInstance.getColValue(rowObject, header), $index)  === '[object Object]'">
+                                                    <span data-sort="arrayData[tableConfig.propertyName]"  data-filter="arrayData[tableConfig.propertyName]" class="label label-default">
+                                                        {{arrayData[tableConfig.propertyName]}}
+                                                    </span>
+                                                    <span ng-if="!$last" style="padding-right:2px;"></span> 
+                                            </span>
+                                        </span>  
+                                    </span>
                                     <!--Do string populated work here...-->
                                     <!-- {{ getColValue(rowObject, header)}} -->
-                                    <ul>
+                                    <ul ng-if="tableConfig.search !== 'arrayOfObject'">
                                         <li ng-repeat="arrayData in tableInstance.getColValue(rowObject, header)">
                                             <span ng-if="tableInstance.checkType(tableInstance.getColValue(rowObject, header), $index)  === '[object Object]'">
                                                 <ul style="padding-left: 0px;">

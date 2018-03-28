@@ -281,7 +281,7 @@ angular.module($snaphy.getModuleName())
                             return;
                         }
 
-                        var pagination = tableState.pagination;
+                        var pagination = tableState.pagination || 10;
                         var start = tableState.pagination.start || 0; // This is NOT the page number, but the index of item in the list that you want to use to display the table.
                         var number = pagination.number || dataContainer.settings.totalNumberOfRows; // Number of entries showed per page.
                         //If a page is reset state i.e some filter is applied then move back to 1 page..

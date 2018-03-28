@@ -367,6 +367,28 @@ angular.module($snaphy.getModuleName())
                         //Now redraw the table..
                         refreshData();
                     }
+                }else if (filterType === "arrayOfObject") {
+                    if(model){
+                        //First find the data....
+                        if(schema.tables){
+                            var keyName = columnName.replace(/\./, "_");
+                            if(schema.tables[keyName]){
+                                /**
+                                 * "newsLabels":{
+                                        "display": true,
+                                        "search": "arrayOfObject",
+                                        "type": "text",
+                                        "propertyName": "name"
+                                    }
+                                 */
+                                var tableOptions = schema.tables[keyName];
+                                var nestedColumnName = columnName + "."+ tableOptions.propertyName;
+                                getCache().where = prepareWhereQuery(getCache().where, filterType, nestedColumnName, model);
+                            }
+                        }
+                    }
+                    //Now redraw the table..
+                    refreshData();
                 }else if(/^related.+/.test(filterType)){
                     if(model){
                         //First find the data....
@@ -463,6 +485,33 @@ angular.module($snaphy.getModuleName())
                 }
                 return keyName;
             };
+
+
+        /**
+         * Return the params for ui-sref for onClick
+         * @param params
+         * @param rowObject
+         * @returns {*}
+         */
+        var getExternalParam = function(params, rowObject) {
+            var path = "";
+            var data = JSON.parse(JSON.stringify(params));
+            for (var key in data) {
+                if (data.hasOwnProperty(key)) {
+                    if(rowObject[key]){
+                        var searchKey =  data[key];
+                        if(searchKey){
+                            if(rowObject[searchKey]){
+                                data[key] = rowObject[searchKey];
+                                path = path  + "/" + rowObject[searchKey];
+                            }
+                        }
+
+                    }
+                }
+            }
+            return path;
+        };
 
 
             /**
@@ -1051,7 +1100,8 @@ angular.module($snaphy.getModuleName())
                 onActionButtonClick: onActionButtonClick,
                 checkActionButtonDisabled: checkActionButtonDisabled,
                 loadLargeImage: loadLargeImage,
-                loadImage: loadImage
+                loadImage: loadImage,
+                getExternalParam: getExternalParam
             }; //inner function
         }; //Outer function
 
