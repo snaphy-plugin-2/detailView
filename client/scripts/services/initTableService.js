@@ -149,27 +149,27 @@ angular.module($snaphy.getModuleName())
                                 });
                             }
                         }
-
+                        cache[relationName].settings = cache[relationName].settings || {};
                         //This object all the settings related to current dataContainer of table view.
-                        cache[relationName].settings = {
-                            filterReset : false,
-                            resetPage : false,
-                            //tracking if absoluteSchema is fetched or not..
-                            schemaFetched: false,
-                            isLoading: true,
-                            pagesReturned: 0,
-                            totalResults: 0,
-                            totalNumberOfRows: 5,
-                            //Reset the filter for tracking model where query for facilitating the model search filter..
-                            watchRelatedModels: {},
-                            saveFormData: {},
-                            //Creates a backup of data  to be performed while in edit mode..
-                            backupData: {},
-                            //Inline search data object
-                            //Store data of inline search associated with each table header.
-                            inlineSearch:{},
-                            form: {}
-                        };
+                        
+                        cache[relationName].settings.filterReset = cache[relationName].settings.filterReset || false;
+                        cache[relationName].settings.resetPage = false;
+                        //tracking if absoluteSchema is fetched or not..
+                        cache[relationName].settings.schemaFetched =  false;
+                        cache[relationName].settings.isLoading = true;
+                        cache[relationName].settings.pagesReturned =  0;
+                        cache[relationName].settings.totalResults =  0;
+                        cache[relationName].settings.totalNumberOfRows = cache[relationName].settings.totalNumberOfRows  ||  5;
+                        //Reset the filter for tracking model where query for facilitating the model search filter..
+                        cache[relationName].settings.watchRelatedModels =  {};
+                        cache[relationName].settings.saveFormData = {};
+                        //Creates a backup of data  to be performed while in edit mode..
+                        cache[relationName].settings.backupData = {};
+                        //Inline search data object
+                        //Store data of inline search associated with each table header.
+                        cache[relationName].settings.backupData.inlineSearch = {};
+                        cache[relationName].settings.backupData.form = {};
+                        
                     }; //End of resetData fn.
 
                     //Start memoization..
