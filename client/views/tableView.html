@@ -45,8 +45,7 @@
                     Add {{ tableInstance.getCache().label | camelCaseToSpaces}}
 
                 </button>
-
-                <li>
+                <li ng-hide="relationDetail.action.refresh === false" >
                     <button ng-click="tableInstance.resetAll()" type="button" data-toggle="block-option" data-action="refresh_toggle"  ><i class="si si-refresh"></i></button>
                 </li>
             </ul>
