@@ -29,10 +29,11 @@ angular.module($snaphy.getModuleName())
                      * @param schema optional if provided the adds schema object..
                      */
                     var resetData = function(schema){
+                        var persistentData = cache[relationName].persistentData;
                         cache[relationName] = {};
                         angular.copy(relationDetail, cache[relationName]);
                         //These are those data that are not to be deleted on each data reset request..
-                        cache[relationName].persistentData = {};
+                        cache[relationName].persistentData = persistentData || {};
                         cache[relationName].resetFilterList = [];
                         //Also add the relation type..
                         cache[relationName].relationType = relationType;
