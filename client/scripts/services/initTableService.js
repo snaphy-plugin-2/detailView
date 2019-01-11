@@ -41,10 +41,8 @@ angular.module($snaphy.getModuleName())
                             //Absolute schema that is fetched from server..
                             cache[relationName].schema = schema;
                         }else{
-                            if(!cache[relationName].schema){
-                                //Absolute schema that is fetched from server..
-                                cache[relationName].schema = {};
-                            }
+                            //Absolute schema that is fetched from server..
+                            cache[relationName].schema = relationDetail.schema || {};
                         }
 
                         //Data to be displayed in the table..
