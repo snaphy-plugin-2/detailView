@@ -139,6 +139,7 @@ angular.module($snaphy.getModuleName())
                                 data[relationDetail.searchId] = modelId;
                             }
                         ];
+                        
 
 
                         if(relationDetail.beforeSaveHook){
@@ -148,6 +149,8 @@ angular.module($snaphy.getModuleName())
                                 });
                             }
                         }
+                        
+                        cache[relationName].onSchemaFetched = cache[relationName].onSchemaFetched || [];
                         cache[relationName].settings = cache[relationName].settings || {};
                         //This object all the settings related to current dataContainer of table view.
                         
@@ -312,6 +315,14 @@ angular.module($snaphy.getModuleName())
                         if ($.isEmptyObject(dataContainer.schema )) {
                             //First get the schema..
                             Resource.getSchema(modelName, function(schema) {
+                                //Now run on schema fetched hooks..
+                                if(dataContainer.onSchemaFetched){
+                                    if(dataContainer.onSchemaFetched.length){
+                                        dataContainer.onSchemaFetched.forEach(function(schemaFunc){
+                                           schema = schemaFunc(schema);
+                                        });
+                                    }
+                                }
                                 schema = removeParentRelationFromSchema(schema, dataContainer);
 
                                 //Populate the schema..
