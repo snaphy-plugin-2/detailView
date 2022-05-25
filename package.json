@@ -6,7 +6,7 @@
   "author": "Robins Gupta",
   "authorEmail": "robinskumar73@gmail.com",
   "dependencies": {
-    "grunt": "^1.0.2",
+    "grunt": "^1.5.3",
     "grunt-serve": "^0.1.6",
     "lodash": "^4.16.6"
   },
